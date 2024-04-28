@@ -292,7 +292,17 @@ GROUP BY B.id;
 -- Purpose: 
 
 -- Query 6
--- Purpose: 
+-- Purpose: Lists most commonly used tags for a user's snippets. 
+
+SELECT 
+    U.username,
+    ST.tag,
+    COUNT(ST.tag) AS tag_count
+FROM USERS U
+JOIN CODESNIPPETS CS ON U.id = CS.user_id
+JOIN SNIPPETTAGS ST ON CS.snippet_id = ST.snippet_id
+GROUP BY U.username, ST.tag
+ORDER BY U.username, COUNT(ST.tag) DESC;
 
 -- Query 7
 -- Purpose: Returns the 10 most recently posted code snippets. 
@@ -306,3 +316,12 @@ JOIN CODESNIPPETS CS ON U.id = CS.user_id
 WHERE CS.privacy = 1
 ORDER BY CS.date_posted DESC
 LIMIT 10;
+
+-- Query 8 
+-- Purpose: Create your own non-trivial SQL query (must use at least two tables in FROM clause)
+
+-- Query 9 
+-- Purpose: Create your own non-trivial SQL query (must use at least three tables in FROM clause)
+
+-- Query 10 
+-- Purpose: must use at least three tables in FROM clause and must use aliasing or renaming for at least once throughout SQL query
