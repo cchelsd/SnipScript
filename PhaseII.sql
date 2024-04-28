@@ -210,7 +210,8 @@ INSERT INTO BOOKMARKS (user_id, snippet_id) VALUES
 -- Part C
 -- ***************************
 
--- 1. Computes a join of at least three tables - Join Board, List, Snippets - Search for User by ID 
+-- Query 1
+-- Purpose: Computes a join of Join Board, List, and Snippets to return a User from their ID. 
 
 SELECT 
     U.username,
@@ -224,7 +225,9 @@ JOIN LISTS L ON B.id = L.board_id
 JOIN CODESNIPPETS CS ON L.id = CS.list_id
 WHERE U.id = 1;  
 
--- 2. Uses nested queries with the IN, ANY or ALL operator and uses a GROUP BY clause - Search Function - Search for own code snippets by title 
+-- Query 2 
+-- Purpose: Searches for code snippets by programming language keyword. Will be useful later when users will want to list 
+-- snippets by specific programming languages. Currently searches only for Java, but this can be easily configured/changed later. 
 
 SELECT 
     CS.title,
@@ -239,7 +242,8 @@ WHERE CS.user_id = 1 AND
       )
 GROUP BY CS.title;
 
--- 3. A correlated nested query with proper aliasing applied - Filter Function - Filter to find the latest upload to a board
+-- Query 3
+-- Returns the most recent snippet posted to a user's board. 
 
 SELECT
     board_name,
@@ -263,24 +267,42 @@ FROM (
 WHERE rn = 1;
 
 
--- 4. Full Outer Join - Gets snippet count across all users regardless of 
+-- Query 4 
+-- Purpose: Returns a count of snippets for every board. Union operation is used for ensuring 
+-- all potential snippets from all boards and lists are included. 
 
-SELECT B.id,
-COUNT(C.snippet_id) AS num_snippets
+SELECT B.id AS board_id,
+       COUNT(C.snippet_id) AS num_snippets
 FROM BOARDS B
 LEFT JOIN LISTS L ON B.id = L.board_id
 LEFT JOIN CODESNIPPETS C ON L.id = C.list_id
 GROUP BY B.id
 
-UNION
+UNION ALL
 
-SELECT B.id,
-COUNT(C.snippet_id) AS num_snippets
+SELECT B.id AS board_id,
+       COUNT(C.snippet_id) AS num_snippets
 FROM LISTS L
-RIGHT JOIN BOARDS B ON B.id = L.board_id
+LEFT JOIN BOARDS B ON L.board_id = B.id  
 LEFT JOIN CODESNIPPETS C ON L.id = C.list_id
-WHERE B.id IS NULL
-GROUP BY B.id
+WHERE B.id IS NULL  
+GROUP BY B.id;
 
+-- Query 5 
+-- Purpose: 
 
--- 5. Nested queries with Set Operation - 
+-- Query 6
+-- Purpose: 
+
+-- Query 7
+-- Purpose: Returns the 10 most recently posted code snippets. 
+
+SELECT 
+    U.username,
+    CS.title,
+    CS.code_content
+FROM USERS U
+JOIN CODESNIPPETS CS ON U.id = CS.user_id
+WHERE CS.privacy = 1
+ORDER BY CS.date_posted DESC
+LIMIT 10;
