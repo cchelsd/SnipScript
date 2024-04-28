@@ -272,7 +272,7 @@ WHERE rn = 1;
 -- all potential snippets from all boards and lists are included. 
 
 SELECT B.id AS board_id,
-       COUNT(C.snippet_id) AS num_snippets
+       COUNT(C.id) AS num_snippets
 FROM BOARDS B
 LEFT JOIN LISTS L ON B.id = L.board_id
 LEFT JOIN CODESNIPPETS C ON L.id = C.list_id
@@ -280,29 +280,29 @@ GROUP BY B.id
 
 UNION ALL
 
+-- Count of public snippets per board
 SELECT B.id AS board_id,
-       COUNT(C.snippet_id) AS num_snippets
-FROM LISTS L
-LEFT JOIN BOARDS B ON L.board_id = B.id  
+       COUNT(C.id) AS num_public_snippets
+FROM BOARDS B
+LEFT JOIN LISTS L ON B.id = L.board_id
 LEFT JOIN CODESNIPPETS C ON L.id = C.list_id
-WHERE B.id IS NULL  
+WHERE C.privacy = 0
 GROUP BY B.id;
 
 -- Query 5 
 -- Purpose: 
 
 -- Query 6
--- Purpose: Lists most commonly used tags for a user's snippets. 
+-- Purpose: Lists top 5 most used tags across all users. 
 
 SELECT 
-    U.username,
     ST.tag,
     COUNT(ST.tag) AS tag_count
-FROM USERS U
-JOIN CODESNIPPETS CS ON U.id = CS.user_id
-JOIN SNIPPETTAGS ST ON CS.snippet_id = ST.snippet_id
-GROUP BY U.username, ST.tag
-ORDER BY U.username, COUNT(ST.tag) DESC;
+FROM CODESNIPPETS CS
+JOIN SNIPPETTAGS ST ON CS.id = ST.snippet_id
+GROUP BY ST.tag
+ORDER BY COUNT(ST.tag) DESC
+LIMIT 5;
 
 -- Query 7
 -- Purpose: Returns the 10 most recently posted code snippets. 
