@@ -14,7 +14,7 @@
 -- Table_USERS: Store data about Users
 CREATE TABLE USERS 
 (
-  id INT PRIMARY KEY AUTO_INCREMENT, 
+  id INT PRIMARY KEY AUTO_INCREMENT,
   username VARCHAR(50) NOT NULL,
   password_hash VARCHAR(50) NOT NULL,
   UNIQUE (username),
@@ -26,7 +26,7 @@ CREATE TABLE USERS
 CREATE TABLE BOARDS 
 (
   id INT PRIMARY KEY AUTO_INCREMENT, 
-  user_id INT NOT NULL, 
+  user_id INT NOT NULL,
   board_name VARCHAR(255) NOT NULL, 
   color VARCHAR(255) DEFAULT "#FFFFFF", -- default color white
   FOREIGN KEY (user_id) REFERENCES USERS(id) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -72,7 +72,8 @@ CREATE TABLE SNIPPETTAGS
   snippet_id INT NOT NULL AUTO_INCREMENT, 
   tag VARCHAR(30) NOT NULL,
   PRIMARY KEY (snippet_id, tag), 
-  FOREIGN KEY (snippet_id) REFERENCES CODESNIPPETS(id) ON DELETE CASCADE ON UPDATE CASCADE
+  FOREIGN KEY (snippet_id) REFERENCES CODESNIPPETS(id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT CHK_ONE_WORD CHECK (tag NOT LIKE '% %') -- Ensures each tag only contains one word
 );
 
 -- Table_TRENDINGSNIPPETS: Store data about Trending Code Snippets 
@@ -142,12 +143,13 @@ INSERT INTO LISTS (user_id, board_id, list_name) VALUES
 (10, 10, 'Concurrency');
 
 -- Sample data for Table_CODESNIPPETS 
--- Summary: store data about CODESNIPPETS (user id, list id, title, description, content, date posted, rating, privacy)
+-- Summary: store data about CODESNIPPETS (user id, list id, title, description, content, date posted, rating, privacy, numOfViews, numOfCopies)
 INSERT INTO CODESNIPPETS (user_id, list_id, title, snippet_description, code_content, date_posted, rating, privacy, numOfViews, numOfCopies) VALUES
-(1, 1, 'Java Basics', 'Introduction to Java programming language', 'public class HelloWorld { public static void main(String[] args) { System.out.println("Hello, World!"); } }', 1, 10, 1, 0, 0),
+(1, 1, 'Java Basics', 'Introduction to Java programming language', 'public class HelloWorld { public static void main(String[] args) { System.out.println("Hello, World!"); } }', DEFAULT, 10, 0, 0, 0),
 (2, 2, 'Bubble Sort', 'Implementation of Bubble Sort algorithm in Java', 'public class BubbleSort { public static void bubbleSort(int[] arr) { int n = arr.length; for (int i = 0; i < n-1; i++) { for (int j = 0; j < n-i-1; j++) { if (arr[j] > arr[j+1]) { int temp = arr[j]; arr[j] = arr[j+1]; arr[j+1] = temp; } } } } }', DEFAULT, 8, 0, 100, 10),
 (3, 3, 'HTML Basics', 'Introduction to HTML', '<!DOCTYPE html><html><head><title>Page Title</title></head><body><h1>This is a Heading</h1><p>This is a paragraph.</p></body></html>', DEFAULT, 6, DEFAULT, 0, 0),
 (4, 4, 'CSS Styling', 'Basic CSS styling', 'body { background-color: lightblue; } h1 { color: navy; margin-left: 20px; }', DEFAULT, 7, 1, 0, 0),
+(4, 4, 'Responsive Web Design', 'Responsive web design using CSS media queries', '@media only screen and (max-width: 600px) { body { background-color: lightblue; }}', DEFAULT, 5, 1, 120, 15),
 (2, 6, 'Python Functions', 'Example of defining and calling functions in Python', 'def greet(name): print("Hello, " + name)greet("Alice")greet("Bob")', DEFAULT, 9, 0, 50, 2),
 (2, 6, 'Python Classes', 'Introduction to classes in Python', 'class Person: def __init__(self, name, age): self.name = name self.age = age def greet(self): print("Hello, my name is " + self.name) def celebrate_birthday(self): self.age += 1', DEFAULT, 10, 0, 10, 0),
 (7, 7, 'JavaScript Countdown', 'Simple Countdown Timer in JavaScript', 'function startCountdown(seconds) { let counter = seconds; const interval = setInterval(() => { console.log(counter); counter--; if (counter < 0) { clearInterval(interval); console.log("Countdown finished!"); } }, 1000); } startCountdown(10);', DEFAULT, 9, 1, 0, 0),
@@ -198,7 +200,8 @@ INSERT INTO BOOKMARKS (user_id, snippet_id) VALUES
 (5, 2),
 (5, 3),
 (5, 4),
-(6, 1),
+(5, 11),
+(6, 2),
 (6, 9),
 (7, 9),
 (8, 10),
@@ -209,119 +212,139 @@ INSERT INTO BOOKMARKS (user_id, snippet_id) VALUES
 -- ***************************
 -- Part C
 -- ***************************
+-- Query 1: Retrieve the top 5 most popular snippets within a user's board based on the number of upvotes they've received.
+-- Query 2: Retrieve most popular tags among all public code snippets. This can help users discover trending topics on the explore page.
+-- Query 3: Retrieve top contributors based on the number of public snippets they've posted. 
+-- Query 4: Search for code snippets based on title, description, and tags for the explore page (searches all user's public snippets)
+-- Query 5: Search for code snippets across both a user's own snippets and their bookmarked snippets
+-- Query 6: Retrieve all the boards of a user and the number of snippets in each board. 
+-- Query 7: Retrieve the 5 most recent code snippets added by the user across all of their boards.
+-- Query 8: Retrieve a user's top 5 most popular snippets based on the collective stats of views, copies, and bookmarks.
+-- Query 9: 
+-- Query 10: Retrieve data about the lists and code snippets within a single board belonging to the current user.
 
 -- Query 1
--- Purpose: Computes a join of Join Board, List, and Snippets to return a User from their ID. 
-
-SELECT 
-    U.username,
-    B.board_name,
-    L.list_name,
-    CS.title AS snippet_title,
-    CS.snippet_description
-FROM USERS U
-JOIN BOARDS B ON U.id = B.user_id
+-- Purpose: Retrieves the top 5 most popular snippets within a user's board based on the number of upvotes they've received
+-- Board id will be dynamically set based on user interacrtion. For testing purposes, we'll set board id to 2.
+SELECT CS.id AS Snippet_ID, CS.rating AS Upvotes
+FROM BOARDS B
 JOIN LISTS L ON B.id = L.board_id
 JOIN CODESNIPPETS CS ON L.id = CS.list_id
-WHERE U.id = 1;  
-
--- Query 2 
--- Purpose: Searches for code snippets by programming language keyword. Will be useful later when users will want to list 
--- snippets by specific programming languages. Currently searches only for Java, but this can be easily configured/changed later. 
-
-SELECT 
-    CS.title,
-    CS.code_content
-FROM CODESNIPPETS CS
-WHERE CS.user_id = 1 AND
-      CS.title LIKE '%Java%' AND
-      CS.title IN (
-          SELECT title 
-          FROM CODESNIPPETS 
-          WHERE user_id = 1 AND title LIKE '%Java%'
-      )
-GROUP BY CS.title;
-
--- Query 3
--- Returns the most recent snippet posted to a user's board. 
-
-SELECT
-    board_name,
-    list_name,
-    snippet_title,
-    snippet_description,
-    date_posted
-FROM (
-    SELECT
-        B.board_name,
-        L.list_name,
-        CS.title AS snippet_title,
-        CS.snippet_description,
-        CS.date_posted,
-        ROW_NUMBER() OVER (PARTITION BY B.id ORDER BY CS.date_posted DESC) AS rn
-    FROM BOARDS B
-    JOIN LISTS L ON B.id = L.board_id
-    JOIN CODESNIPPETS CS ON L.id = CS.list_id
-    WHERE B.id = 1
-) AS subquery
-WHERE rn = 1;
-
-
--- Query 4 
--- Purpose: Returns a count of snippets for every board. Union operation is used for ensuring 
--- all potential snippets from all boards and lists are included. 
-
-SELECT B.id AS board_id,
-       COUNT(C.id) AS num_snippets
-FROM BOARDS B
-LEFT JOIN LISTS L ON B.id = L.board_id
-LEFT JOIN CODESNIPPETS C ON L.id = C.list_id
-GROUP BY B.id
-
-UNION ALL
-
--- Count of public snippets per board
-SELECT B.id AS board_id,
-       COUNT(C.id) AS num_public_snippets
-FROM BOARDS B
-LEFT JOIN LISTS L ON B.id = L.board_id
-LEFT JOIN CODESNIPPETS C ON L.id = C.list_id
-WHERE C.privacy = 0
-GROUP BY B.id;
-
--- Query 5 
--- Purpose: 
-
--- Query 6
--- Purpose: Lists top 5 most used tags across all users. 
-
-SELECT 
-    ST.tag,
-    COUNT(ST.tag) AS tag_count
-FROM CODESNIPPETS CS
-JOIN SNIPPETTAGS ST ON CS.id = ST.snippet_id
-GROUP BY ST.tag
-ORDER BY COUNT(ST.tag) DESC
+WHERE B.id = 2
+ORDER BY Upvotes DESC
 LIMIT 5;
 
--- Query 7
--- Purpose: Returns the 10 most recently posted code snippets. 
+-- Query 2 
+-- Purpose: Retrieve most popular tags among all public code snippets. This can help users discover trending topics on the explore page.
+SELECT tag, COUNT(*) AS tag_count
+FROM SNIPPETTAGS
+WHERE 
+    snippet_id IN (
+        SELECT id
+        FROM CODESNIPPETS
+        WHERE privacy = 0
+    )
+GROUP BY tag
+ORDER BY tag_count DESC
+LIMIT 10;
 
-SELECT 
-    U.username,
-    CS.title,
-    CS.code_content
+-- Query 3 
+-- Purpose: Retrieve top contributors based on the number of public snippets they've posted. 
+-- This will be helpful for users to discover snippets by top users.
+SELECT u.username AS author,
+    (
+        SELECT COUNT(*) 
+        FROM CODESNIPPETS c 
+        WHERE c.user_id = u.id AND c.privacy = 0
+    ) AS Total_Public_Snippets
+FROM 
+    USERS u
+ORDER BY 
+    Total_Public_Snippets DESC
+LIMIT 8;
+
+-- Query 4 
+-- Purpose: Search for code snippets based on title, description, and tags for the explore page (searches all user's public snippets)
+-- Keywords will be dynamically set based on user input.
+-- MySQL does not natively support FULL OUTER JOIN; we can emulate it by using LEFT JOIN, RIGHT JOIN, and UNION.
+SELECT DISTINCT CS.id, CS.title, CS.snippet_description
+FROM CODESNIPPETS CS
+LEFT JOIN SNIPPETTAGS ST ON CS.id = ST.snippet_id
+WHERE privacy = 0  AND (CS.title LIKE '%Python%' OR CS.snippet_description LIKE '%introduction%')
+
+UNION DISTINCT
+
+SELECT DISTINCT CS.id, CS.title, CS.snippet_description
+FROM CODESNIPPETS CS
+RIGHT JOIN SNIPPETTAGS ST ON CS.id = ST.snippet_id
+WHERE privacy = 0 AND ST.tag = 'useful';
+
+-- Query 5 
+-- Purpose: Search for code snippets across both a user's own snippets and their bookmarked snippets
+-- User will be dynamically set based on current user. For now, we'll test with user 2.
+SELECT id, title, snippet_description
+FROM (
+    SELECT id, title, snippet_description, user_id
+    FROM CODESNIPPETS
+    WHERE user_id = 2
+    UNION
+    SELECT CS.id, CS.title, CS.snippet_description, CS.user_id
+    FROM CODESNIPPETS CS
+    JOIN BOOKMARKS B ON CS.id = B.snippet_id
+    WHERE B.user_id = 2
+) AS combined_results
+WHERE title LIKE '%java%' OR snippet_description LIKE '%java%';
+
+-- Query 6
+-- Purpose: Retrieves all the boards of a user and the number of snippets in each board. 
+-- User will be dynamically set based on current user. For now, we'll test with user 1.
+SELECT b.id AS "Board ID", COUNT(CS.id) AS "Number of Snippets"
 FROM USERS U
-JOIN CODESNIPPETS CS ON U.id = CS.user_id
-WHERE CS.privacy = 1
+JOIN BOARDS B ON U.id = B.user_id
+LEFT JOIN LISTS L ON B.id = L.board_id
+LEFT JOIN CODESNIPPETS CS ON L.id = CS.list_id
+WHERE U.id = 4
+GROUP BY B.id;
+
+-- Query 7
+-- Purpose: Retrieve the 10 most recent code snippets added by the user across all of their boards.
+-- User will be dynamically set based on current user. For now, we'll test with user 2.
+SELECT CS.id, CS.date_posted
+FROM CODESNIPPETS CS
+JOIN USERS U ON U.id = CS.user_id
+WHERE CS.user_id = 2
 ORDER BY CS.date_posted DESC
 LIMIT 10;
 
 -- Query 8 
--- Purpose: Create your own non-trivial SQL query (must use at least two tables in FROM clause)
+-- Purpose: Retrieves a user's top 5 most popular snippets based on the collective stats of views, copies, and bookmarks.
+-- User will be dynamically set based on current user. For now, we'll test with user 2.
+SELECT 
+    cs.id, 
+    cs.numOfViews, 
+    cs.numOfCopies, 
+    COALESCE(b.Total_Bookmarks, 0) AS Total_Bookmarks, 
+    cs.numOfViews + cs.numOfCopies + COALESCE(b.Total_Bookmarks, 0) AS Total_Stats
+FROM CODESNIPPETS cs
+LEFT JOIN (
+    SELECT snippet_id, COUNT(*) AS Total_Bookmarks
+    FROM Bookmarks
+    GROUP BY snippet_id
+) b ON cs.id = b.snippet_id
+WHERE cs.user_id = 2 AND cs.privacy = 0 
+ORDER BY Total_Stats DESC
+LIMIT 5;
 
 -- Query 9 
 -- Purpose: Create your own non-trivial SQL query (must use at least three tables in FROM clause)
 
+
 -- Query 10 
--- Purpose: must use at least three tables in FROM clause and must use aliasing or renaming for at least once throughout SQL query
+-- Purpose: Retrieve data about the lists and code snippets within a single board belonging to the current user.
+-- Board id will be dynamically set based on current user and interaction with app. For now we'll test with board id of '4'.
+SELECT L.id AS "List ID", CS.id AS "Code Snippet ID"
+FROM Users U
+JOIN Boards B ON U.id = B.user_id
+JOIN Lists L ON B.id = L.board_id
+LEFT JOIN CodeSnippets CS ON L.id = CS.list_id
+WHERE B.id = 4
