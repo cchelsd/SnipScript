@@ -16,10 +16,9 @@ CREATE TABLE USERS
 (
   id INT PRIMARY KEY AUTO_INCREMENT,
   username VARCHAR(50) NOT NULL,
-  password_hash VARCHAR(50) NOT NULL,
+  password_hash VARCHAR(100) NOT NULL,
   UNIQUE (username),
-  CONSTRAINT CHK_USERNAME_FORMAT CHECK (username REGEXP '^[A-Za-z0-9_]*$'),  -- username only contains letters (uppercase and lowercase), numbers, and underscores
-  CONSTRAINT CHK_PASSWORD_LENGTH CHECK (LENGTH(password_hash) >= 8) -- password is at least 8 characters long
+  CONSTRAINT CHK_USERNAME_FORMAT CHECK (username REGEXP '^[A-Za-z0-9_]*$')  -- username only contains letters (uppercase and lowercase), numbers, and underscores
 );
 
 -- Table_BOARDS: Store data about Boards
@@ -29,7 +28,7 @@ CREATE TABLE BOARDS
   user_id INT NOT NULL,
   board_name VARCHAR(255) NOT NULL, 
   color VARCHAR(255) DEFAULT "#FFFFFF", -- default color white
-  FOREIGN KEY (user_id) REFERENCES USERS(id) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES USERS(id) ON DELETE CASCADE,
   UNIQUE(user_id, board_name), -- Unique board names for each user
   CONSTRAINT CHK_COLOR_HEX CHECK (color REGEXP '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'), -- color is valid hexadecimal value
   CONSTRAINT CHK_NO_LEADING_TRAILING_SPACES CHECK (board_name NOT REGEXP '^ | $') --  board name has no leading or trailing spaces
@@ -43,8 +42,8 @@ CREATE TABLE LISTS
     board_id INT NOT NULL,
     list_name VARCHAR(50) NOT NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY (user_id) REFERENCES USERS(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (board_id) REFERENCES BOARDS(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES USERS(id) ON DELETE CASCADE,
+    FOREIGN KEY (board_id) REFERENCES BOARDS(id) ON DELETE CASCADE,
     UNIQUE(user_id, list_name) -- Unique list names for each user
 );
 
@@ -61,10 +60,11 @@ CREATE TABLE CODESNIPPETS
   date_posted DATETIME DEFAULT CURRENT_TIMESTAMP, -- default time is current time
   rating INT DEFAULT 0, -- default rating is 0
   privacy TINYINT DEFAULT 1, -- default privacy set to private
-  numOfViews INT DEFAULT 0,
-  numOfCopies INT DEFAULT 0,
-  FOREIGN KEY (user_id) REFERENCES USERS(id) ON DELETE CASCADE ON UPDATE CASCADE,
-  FOREIGN KEY (list_id) REFERENCES LISTS(id) ON DELETE CASCADE ON UPDATE CASCADE
+  numOfViews INT DEFAULT 0, -- default views 0
+  numOfCopies INT DEFAULT 0, -- default copies 0
+  FOREIGN KEY (user_id) REFERENCES USERS(id) ON DELETE CASCADE,
+  FOREIGN KEY (list_id) REFERENCES LISTS(id) ON DELETE CASCADE,
+  CONSTRAINT CHK_LANGUAGE CHECK (code_language NOT REGEXP '^ | $') -- language has no leading or trailing spaces
 );
 
 -- Table_SNIPPETTAGS: Store tags for each Code Snippet
@@ -73,7 +73,7 @@ CREATE TABLE SNIPPETTAGS
   snippet_id INT NOT NULL AUTO_INCREMENT, 
   tag VARCHAR(30) NOT NULL,
   PRIMARY KEY (snippet_id, tag), 
-  FOREIGN KEY (snippet_id) REFERENCES CODESNIPPETS(id) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (snippet_id) REFERENCES CODESNIPPETS(id) ON DELETE CASCADE,
   CONSTRAINT CHK_ONE_WORD CHECK (tag NOT LIKE '% %') -- Ensures each tag only contains one word
 );
 
@@ -82,17 +82,17 @@ CREATE TABLE TRENDINGSNIPPETS
 (
     id INT PRIMARY KEY AUTO_INCREMENT,
     snippet_id INT NOT NULL,
-    FOREIGN KEY (snippet_id) REFERENCES CODESNIPPETS(id) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (snippet_id) REFERENCES CODESNIPPETS(id) ON DELETE CASCADE
 );
 
--- Table_BOOKMAKRS: Store data about BOOKMARKED SNIPPETS
+-- Table_BOOKMARKS: Store data about BOOKMARKED SNIPPETS
 CREATE TABLE BOOKMARKS
 (
 	id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
     snippet_id INT NOT NULL,
-    FOREIGN KEY (snippet_id) REFERENCES CODESNIPPETS(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES USERS(id) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (snippet_id) REFERENCES CODESNIPPETS(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES USERS(id) ON DELETE CASCADE
 );
 
 -- ***************************
