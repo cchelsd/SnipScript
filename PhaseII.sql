@@ -367,4 +367,23 @@ FROM Users U
 JOIN Boards B ON U.id = B.user_id
 JOIN Lists L ON B.id = L.board_id
 LEFT JOIN CodeSnippets CS ON L.id = CS.list_id
-WHERE B.id = 4
+WHERE B.id = 4;
+
+-- Query 11
+-- PURPOSE: Retrieve data about the number of views each code snippet has within a single board belonging to any user. 
+-- EXPECTED: A table including the title, language the snippet is in, and the user within a specific board. 
+SELECT 
+    CS.title, 
+    CS.code_language, 
+    U.username AS posted_by_user
+FROM 
+    CODESNIPPETS CS
+JOIN 
+    USERS U ON CS.user_id = U.id
+JOIN 
+    LISTS L ON CS.list_id = L.id
+WHERE 
+    CS.numOfViews > 5
+ORDER BY 
+    CS.date_posted DESC
+LIMIT 5;
