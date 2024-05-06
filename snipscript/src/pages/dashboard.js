@@ -10,30 +10,52 @@ export default function Dashboard() {
     const user = localStorage.getItem("Current user id");
 
 
-    useEffect(() => {
+    // useEffect(() => {
+    //     if (user) {
+    //         fetch(`http://localhost:3001/boards/${user}`)
+    //         .then(response => {
+    //             if (!response.ok) {
+    //             throw new Error('Network response was not ok');
+    //             }
+    //             return response.json();
+    //         })
+    //         .then(data => {
+    //             setBoards(data);
+    //         })
+    //         .catch(error => {
+    //             console.error('Error:', error);
+    //         });
+    //     }
+    // }, [])
+
+    const fetchBoards = () => {
         if (user) {
             fetch(`http://localhost:3001/boards/${user}`)
-            .then(response => {
-                if (!response.ok) {
-                throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                setBoards(data);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    setBoards(data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
         }
-    }, [])
+    };
+
+    useEffect(() => {
+        fetchBoards();
+    }, []);
 
     
 return (
     <>
-        <div class="flex w-full justify-center items-center bg-transparent overflow-auto">
-            <div class="mt-48 grid gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 p-4 md:p-2 xl:p-5">
-                <EmptyState/>
+        <div className="flex w-full justify-center items-center bg-transparent overflow-auto">
+            <div className="mt-48 grid gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 p-4 md:p-2 xl:p-5">
+                <EmptyState updateBoards={fetchBoards}/>
                 {boards.map(board => (
                     <BoardCard key={board.id} board={board} />
                 ))}

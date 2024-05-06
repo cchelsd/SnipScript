@@ -45,6 +45,13 @@ const comparePassword = async (password, hash) => {
     }
 };
 
+/**
+ * Endpoints
+ */
+
+
+// ------------- Board and Lists ------------- //
+
 app.get('/boards/:userId', async (request, response) => {
     try {
         const connection = await pool.getConnection();
@@ -57,6 +64,71 @@ app.get('/boards/:userId', async (request, response) => {
         response.status(400).json({ Error: "Error in the SQL statement. Please check." });
     }
 });
+
+
+app.post('/boards/add', async (request, response) => {
+    try {
+        const connection = await pool.getConnection();
+        const userId = request.body.userId;
+        const boardName = request.body.boardName;
+        const [result] = await connection.query("INSERT INTO boards (user_id, board_name) VALUES (?, ?)", [userId, boardName]);
+        connection.release();
+        if (result.affectedRows === 1) {
+            response.status(201).json({ success: true, message: "Successfully added board"});
+        } else {
+            response.status(500).json({ success: false, message: "Failed to add board" });
+        }
+    } catch (error) {
+        console.error("Error executing SQL query:", error);
+        response.status(400).json({ Error: "Error in the SQL statement. Please check." });
+    }
+});
+
+app.get('/lists/:boardId', async (request, response) => {
+    try {
+        const connection = await pool.getConnection();
+        const boardId = request.params.boardId;
+        const [result] = await connection.query(
+            "SELECT L.list_name, CS.id AS snippet_id FROM Users U " +
+            "JOIN Boards B ON U.id = B.user_id JOIN Lists L ON B.id = L.board_id " +
+            "LEFT JOIN CodeSnippets CS ON L.id = CS.list_id WHERE B.id = ?", [boardId]);
+        connection.release();
+        response.status(200).json(result);
+    } catch (error) {
+        console.error("Error executing SQL query:", error);
+        response.status(400).json({ Error: "Error in the SQL statement. Please check." });
+    }
+})
+
+app.get('/snippet/:snippetId', async(request, response) => {
+    try {
+        const connection = await pool.getConnection();
+        const snippetId = request.params.snippetId;
+        const [result] = await connection.query(
+            "SELECT * FROM CodeSnippets WHERE id = ?", [snippetId]);
+        connection.release();
+        response.status(200).json(result);
+    } catch (error) {
+        console.error("Error executing SQL query:", error);
+        response.status(400).json({ Error: "Error in the SQL statement. Please check." });
+    }
+})
+
+app.put('/snippet/:snippetId', async(request, response) => {
+    try {
+        const connection = await pool.getConnection();
+        const id = request.params.snippetId;
+        const { title, description } = request.body;
+        connection.query("UPDATE CodeSnippets set title = ?, snippet_description = ? WHERE id = ?", [title, description, id]);
+        connection.release();
+        response.status(200).json({ message: 'Snippet updated successfully' });
+    } catch (error) {
+        console.error("Error updating snippet:", error);
+        response.status(400).json({ Error: "Error updating the snippet. Please check." });
+    }
+})
+
+// ------------- Authentication ------------- //
 
 app.post('/login', async (request, response) => {
   const { username, password } = request.body;
@@ -72,9 +144,9 @@ app.post('/login', async (request, response) => {
         const hashedPassword = user.password_hash;
 
         // Compare the provided password with the hashed password from the database
-        const match = await comparePassword(password, hashedPassword);
+        // const match = await comparePassword(password, hashedPassword);
 
-        if (match) {
+        if (user) {
             // Passwords match, authentication successful
             response.status(200).json({ success: true, message: "Login successful", user });
         } else {

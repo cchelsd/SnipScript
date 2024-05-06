@@ -6,25 +6,48 @@ import LanguageSelector from './language_selector';
 
 export default function SnippetForm ({ card, closeModal, updateCard }) {
   const [title, setTitle] = useState(card.title);
-  const [description, setDescription] = useState(card.description);
-  const [tags, setTags] = useState(card.tags.join(', ')); // Convert array to string for easier editing
-  const [code, setCode] = useState(card.code);
+  const [description, setDescription] = useState(card.snippet_description);
+  // const [tags, setTags] = useState(card.tags.join(', ')); // Convert array to string for easier editing
+  // const [code, setCode] = useState(card.code);
   const [language, setLanguage] = useState('javascript');
 
-  const codeString = "(num) => num + 1";
+  // const codeString = "(num) => num + 1";
 
   const handleSubmit = (e) => {
     e.preventDefault();
     // Update the card data
     const updatedCard = {
-      ...card,
       title: title,
-      description: description,
-      tags: tags.split(', '),
-      code: code,
+      description: description
     };
-    updateCard(updatedCard);
-    closeModal();
+    fetch(`http://localhost:3001/snippet/${card.id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedCard),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Card updated successfully:', data);
+        updateCard();
+        closeModal();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+    // const updatedCard = {
+    //   ...card,
+    //   title: title,
+    //   description: description,
+    //   // tags: tags.split(', '),
+    //   // code: code,
+    // };
   };
 
 
@@ -54,8 +77,8 @@ export default function SnippetForm ({ card, closeModal, updateCard }) {
         <input
           type="text"
           id="tags"
-          value={tags}
-          onChange={(e) => setTags(e.target.value)}
+          // value={tags}
+          // onChange={(e) => setTags(e.target.value)}
           className="mt-2 block w-full rounded-full border-0 px-4 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
           placeholder="Enter tags (comma separated)"
         />
@@ -65,7 +88,7 @@ export default function SnippetForm ({ card, closeModal, updateCard }) {
             <LanguageSelector setLanguage={setLanguage}/>
             {/* <button className='py-1 inline-flex items-center gap-1' onClick={() => {setTimeout(() => {navigator.clipboard.writeText(codeString)}, 0)}}>Copy code</button> */}
           </div>
-          <CodeEditor initialValue={code} onChange={(value) => setCode(value)} language={language}/>
+          {/* <CodeEditor initialValue={code} onChange={(value) => setCode(value)} language={language}/> */}
         </div>
         <div className="flex justify-end">
           <button onClick={handleSubmit} className='rounded-full bg-gray-900 text-white px-6 py-2 mt-4'>Save Changes</button>

@@ -41,8 +41,9 @@ function App() {
       <div className="app-container flex flex-col h-screen">
         <Navbar/>
         <Routes>
-            <Route path="/" element={<Dashboard/>} />
-            <Route path="/board" element={<Board lists={initialData.columns} onDragEnd={onDragEnd}/>} />
+            {/* <Route path="/" element={<Dashboard/>} /> */}
+            <Route path="/dashboard" element={<Dashboard/>} />
+            <Route path="/board/:boardId" element={<Board lists={initialData.columns} onDragEnd={onDragEnd}/>} />
             <Route path="/authentication" element={<Auth/>} />
             {/* <Route path="/bookmarks" component={Bookmarks} /> */}
         </Routes>

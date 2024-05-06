@@ -20,7 +20,7 @@ export default function Navbar() {
   const loginButton = user ? `${user}` : 'Login';
 
   const navigation = [
-    { name: 'Dashboard', href: '/', current: true },
+    { name: 'Dashboard', href: '/dashboard', current: true },
     { name: 'Explore', href: '/board', current: false },
     { name: 'Bookmarks', href: '/bookmarks', current: false },
     { name: loginButton, href: '/authentication', current: false},
@@ -33,7 +33,7 @@ export default function Navbar() {
     return (
       <nav className="p-4 bg-violet-900 bg-opacity-25">
         <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center">
+          <div className="flex items-center cursor-pointer" onClick={() => navigate('/')}>
             <img src={icon} alt="Icon" className="h-14 w-14 mr-5" />
             <img src={logo} alt="Logo" className="h-6" />
           </div>
