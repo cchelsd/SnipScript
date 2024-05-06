@@ -12,7 +12,7 @@ const List = ({ list, index, handleUpdateCard }) => {
       return () => {
       cancelAnimationFrame(animation);
       setEnabled(false);
-      console.log("List", list);
+      console.log("List id::", list.id);
       };
   }, []);
 
@@ -23,7 +23,7 @@ const List = ({ list, index, handleUpdateCard }) => {
   return (
     <div className="flex-1 p-3 rounded-xl bg-gray-200 m-3">
       <h3 className="text-lg font-semibold mb-4 bg-white p-3 rounded-2xl text-center shadow-lg">{list.title}</h3>
-      <Droppable droppableId={list.title}>
+      <Droppable droppableId={list.id}>
         {(provided) => (
           <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
             {list.cards.map((card, index) => (

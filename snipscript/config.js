@@ -89,7 +89,7 @@ app.get('/lists/:boardId', async (request, response) => {
         const connection = await pool.getConnection();
         const boardId = request.params.boardId;
         const [result] = await connection.query(
-            "SELECT L.list_name, CS.id AS snippet_id FROM Users U " +
+            "SELECT L.list_name, L.id, CS.id AS snippet_id FROM Users U " +
             "JOIN Boards B ON U.id = B.user_id JOIN Lists L ON B.id = L.board_id " +
             "LEFT JOIN CodeSnippets CS ON L.id = CS.list_id WHERE B.id = ?", [boardId]);
         connection.release();
@@ -120,6 +120,20 @@ app.put('/snippet/:snippetId', async(request, response) => {
         const id = request.params.snippetId;
         const { title, description } = request.body;
         connection.query("UPDATE CodeSnippets set title = ?, snippet_description = ? WHERE id = ?", [title, description, id]);
+        connection.release();
+        response.status(200).json({ message: 'Snippet updated successfully' });
+    } catch (error) {
+        console.error("Error updating snippet:", error);
+        response.status(400).json({ Error: "Error updating the snippet. Please check." });
+    }
+})
+
+app.put('/snippet/drag/:listId', async(request, response) => {
+    try {
+        const connection = await pool.getConnection();
+        const listId = request.params.listId;
+        const snippetId = request.body.snippetId;
+        connection.query("UPDATE CodeSnippets set list_id = ? WHERE id = ?", [listId, snippetId]);
         connection.release();
         response.status(200).json({ message: 'Snippet updated successfully' });
     } catch (error) {

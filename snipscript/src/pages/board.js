@@ -19,24 +19,41 @@ const Board = () => {
       })
       .then(data => {
         // Group snippets by list_name
-        const groupedLists = data.reduce((acc, { list_name, snippet_id }) => {
+        const groupedLists = data.reduce((acc, { list_name, id, snippet_id }) => {
           if (!acc[list_name]) {
-            acc[list_name] = [];
+            acc[list_name] = { id, snippetIds: [] };
           }
-          if (snippet_id) {
-            acc[list_name].push(snippet_id);
+          if (snippet_id !== null) {
+            acc[list_name].snippetIds.push(snippet_id);
           }
           return acc;
         }, {});
 
         // Convert grouped snippets to list objects
-        const newLists = Object.entries(groupedLists).map(([listName, snippetIds]) => ({
+        const lists = Object.entries(groupedLists).map(([listName, { id, snippetIds }]) => ({
+          id,
           title: listName,
           cards: snippetIds.map(snippetId => ({ id: snippetId }))
         }));
 
+        // const groupedLists = data.reduce((acc, { list_name, snippet_id }) => {
+        //   if (!acc[list_name]) {
+        //     acc[list_name] = [];
+        //   }
+        //   if (snippet_id) {
+        //     acc[list_name].push(snippet_id);
+        //   }
+        //   return acc;
+        // }, {});
+
+        // // Convert grouped snippets to list objects
+        // const newLists = Object.entries(groupedLists).map(([listName, snippetIds]) => ({
+        //   title: listName,
+        //   cards: snippetIds.map(snippetId => ({ id: snippetId }))
+        // }));
+
         // Update the state with the new lists
-        setLists(newLists);
+        setLists(lists);
       })
       .catch(error => {
         console.error('Error:', error);
@@ -57,19 +74,38 @@ const Board = () => {
 
     // Reorder the cards in the source and destination lists
     const sourceListIndex = source.index;
-
-    console.log("Source list index:", sourceListIndex);
     const destListIndex = destination.index;
 
     const updatedLists = [...lists];
-    const sourceList = updatedLists.find((list) => list.title === source.droppableId);
-    const destList = updatedLists.find((list) => list.title === destination.droppableId);
+    const sourceList = updatedLists.find((list) => list.id === source.droppableId);
+    const destList = updatedLists.find((list) => list.id === destination.droppableId);
+    // const sourceList = updatedLists.find((list) => list.id.toString() === source.droppableId.toString());
+    // const destList = updatedLists.find((list) => list.id.toString() === destination.droppableId.toString());
 
     const [movedCard] = sourceList.cards.splice(sourceListIndex, 1);
     destList.cards.splice(destListIndex, 0, movedCard);
 
-    // Update the state with the new lists order
+
     setLists(updatedLists);
+    // fetchLists();
+    // Make a request to update the database
+    fetch(`http://localhost:3001/snippet/drag/${destination.droppableId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ snippetId: draggableId }),
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      } else {
+        console.log('Successfully moved snippet to different list')
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
   };
 
   return (
