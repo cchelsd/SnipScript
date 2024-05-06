@@ -5,6 +5,7 @@ import Dashboard from "./pages/dashboard";
 // import Explore from './components/Explore';
 // import Bookmarks from './components/Bookmarks';
 import Board from './pages/board';
+import Auth from './pages/authentication';
 
 function App() {
 
@@ -42,6 +43,7 @@ function App() {
         <Routes>
             <Route path="/" element={<Dashboard/>} />
             <Route path="/board" element={<Board lists={initialData.columns} onDragEnd={onDragEnd}/>} />
+            <Route path="/authentication" element={<Auth/>} />
             {/* <Route path="/bookmarks" component={Bookmarks} /> */}
         </Routes>
         <div className="flex-1 -z-50 relative">

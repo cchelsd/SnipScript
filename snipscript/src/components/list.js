@@ -20,7 +20,7 @@ const List = ({ list, index, handleUpdateCard }) => {
     }
 
   return (
-    <div className="flex-1 p-3 rounded">
+    <div className="flex-1 p-3 rounded-xl bg-gray-200 m-3">
       <h3 className="text-lg font-semibold mb-4 bg-white p-3 rounded-2xl text-center shadow-lg">{list.title}</h3>
       <Droppable droppableId={list.id}>
         {(provided) => (
@@ -32,6 +32,7 @@ const List = ({ list, index, handleUpdateCard }) => {
           </div>
         )}
       </Droppable>
+      <div className="mt-4 bg-white rounded-xl p-2 cursor-pointer text-center">Add a card +</div>
     </div>
   );
 };

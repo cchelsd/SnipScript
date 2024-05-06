@@ -61,14 +61,14 @@ export default function SnippetForm ({ card, closeModal, updateCard }) {
         />
         <p className='ml-px block pl-4 text-sm font-medium leading-6 text-gray-900 mt-5'>Code</p>
         <div className='mt-2 max-w-2xl min-w-[25rem] bg-[#3a404d] rounded-md overflow-hidden'>
-          <div className='flex justify-between p-3 text-white text-xs items-center'>
+          <div className='flex p-3 text-white text-xs items-center'>
             <LanguageSelector setLanguage={setLanguage}/>
-            <button className='py-1 inline-flex items-center gap-1' onClick={() => {setTimeout(() => {navigator.clipboard.writeText(codeString)}, 0)}}>Copy code</button>
+            {/* <button className='py-1 inline-flex items-center gap-1' onClick={() => {setTimeout(() => {navigator.clipboard.writeText(codeString)}, 0)}}>Copy code</button> */}
           </div>
           <CodeEditor initialValue={code} onChange={(value) => setCode(value)} language={language}/>
         </div>
         <div className="flex justify-end">
-          <button onClick={handleSubmit} className='rounded-full bg-black text-white px-6 py-2 mt-4'>Save Changes</button>
+          <button onClick={handleSubmit} className='rounded-full bg-gray-900 text-white px-6 py-2 mt-4'>Save Changes</button>
         </div>
       </div>
     </div>

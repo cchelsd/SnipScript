@@ -1,4 +1,4 @@
-export default function BoardCard() {
+export default function BoardCard({ board }) {
     return (
         <div className="relative bg-white border rounded-lg shadow-md transform transition duration-500 hover:scale-105">
             <div className="p-2 flex justify-center">
@@ -14,7 +14,7 @@ export default function BoardCard() {
                     <a href="#">
                         <h5
                             className="text-xl font-semibold tracking-tight hover:text-violet-800 text-gray-900">
-                            Board Name
+                            {board.board_name}
                         </h5>
                     </a>
                     <p className="antialiased text-gray-600 text-sm break-all">
