@@ -2,8 +2,31 @@ import BoardCard from "../components/board_card";
 import EmptyState from "../components/empty_state_board";
 import ListForm from "../components/list_form";
 import Test from "../components/test";
+import { useEffect } from "react";
 
 export default function Dashboard() {
+
+
+    useEffect(() => {
+        fetch('http://localhost:3001/boards')
+            .then(response => {
+                if (!response.ok) {
+                throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Data:', data);
+                // Handle the data received from the server
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Handle any errors that occurred during the fetch
+            });
+    })
+
+    
+
 
 return (
     <>
