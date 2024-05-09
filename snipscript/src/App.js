@@ -43,7 +43,7 @@ function App() {
         <Routes>
             {/* <Route path="/" element={<Dashboard/>} /> */}
             <Route path="/dashboard" element={<Dashboard/>} />
-            <Route path="/board/:boardId" element={<Board lists={initialData.columns} onDragEnd={onDragEnd}/>} />
+            <Route path="/board/:boardName/:boardId" element={<Board lists={initialData.columns} onDragEnd={onDragEnd}/>} />
             <Route path="/authentication" element={<Auth/>} />
             {/* <Route path="/bookmarks" component={Bookmarks} /> */}
         </Routes>

@@ -2,7 +2,7 @@ import { Link } from "react-router-dom"
 
 export default function BoardCard({ board }) {
     return (
-        <Link to={`/board/${board.id}`} className="relative bg-white border rounded-lg shadow-md transform transition duration-500 hover:scale-105">
+        <Link to={`/board/${encodeURIComponent(board.board_name)}/${board.id}`} className="relative bg-white border rounded-lg shadow-md transform transition duration-500 hover:scale-105">
             <div className="relative bg-white border rounded-lg shadow-md transform transition duration-500 hover:scale-105">
                 <div className="p-2 flex justify-center">
                     <a href="#">

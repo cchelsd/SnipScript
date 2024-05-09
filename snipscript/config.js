@@ -100,6 +100,38 @@ app.get('/lists/:boardId', async (request, response) => {
     }
 })
 
+app.post('/snippet', async(request, response) => {
+    try {
+        const connection = await pool.getConnection();
+        const { userId, listId, title, description, code, language} = request.body;
+        const [result] = await connection.query("INSERT INTO CodeSnippets (user_id, list_id, title, snippet_description, code_content, code_language)" + 
+        "VALUES (?, ?, ?, ?, ?, ?)", [userId, listId, title, description, code, language]);
+        connection.release();
+        if (result.affectedRows === 1) {
+            response.status(201).json({ success: true, message: "Successfully added snippet"});
+        } else {
+            response.status(500).json({ success: false, message: "Failed to add snippet" });
+        }
+    } catch (error) {
+        console.error("Error executing SQL query:", error);
+        response.status(400).json({ Error: "Error in the SQL statement. Please check." });
+    }
+})
+
+app.get('/snippet/tags/:snippetId', async(request, response) => {
+    try {
+        const connection = await pool.getConnection();
+        const snippetId = request.params.snippetId;
+        const [result] = await connection.query("SELECT tag FROM SnippetTags WHERE snippet_id = ?", [snippetId]);
+        connection.release();
+        const tags = result.map(row => row.tag);
+        response.status(200).json({ tags });
+    } catch (error) {
+        console.error("Error executing SQL query:", error);
+        response.status(400).json({ Error: "Error in the SQL statement. Please check." });
+    }
+})
+
 app.get('/snippet/:snippetId', async(request, response) => {
     try {
         const connection = await pool.getConnection();
@@ -118,8 +150,8 @@ app.put('/snippet/:snippetId', async(request, response) => {
     try {
         const connection = await pool.getConnection();
         const id = request.params.snippetId;
-        const { title, description } = request.body;
-        connection.query("UPDATE CodeSnippets set title = ?, snippet_description = ? WHERE id = ?", [title, description, id]);
+        const { title, description, code } = request.body;
+        connection.query("UPDATE CodeSnippets set title = ?, snippet_description = ?, code_content = ? WHERE id = ?", [title, description, code, id]);
         connection.release();
         response.status(200).json({ message: 'Snippet updated successfully' });
     } catch (error) {

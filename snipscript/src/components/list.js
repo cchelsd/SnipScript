@@ -2,17 +2,19 @@ import React from 'react';
 import ListCard from './list_card';
 import { Droppable } from 'react-beautiful-dnd';
 import { useEffect, useState } from 'react';
+import SnippetForm from './snippet_card_form';
 
 const List = ({ list, index, handleUpdateCard }) => {
 
   const [ enabled, setEnabled ] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
       const animation = requestAnimationFrame(() => setEnabled(true));
       return () => {
       cancelAnimationFrame(animation);
       setEnabled(false);
-      console.log("List id::", list.id);
+      console.log("List id:", list.id);
       };
   }, []);
 
@@ -33,7 +35,8 @@ const List = ({ list, index, handleUpdateCard }) => {
           </div>
         )}
       </Droppable>
-      <div className="mt-4 bg-white rounded-xl p-2 cursor-pointer text-center">Add a card +</div>
+      <div className="mt-4 bg-white rounded-xl p-2 cursor-pointer text-center"  onClick={() => setIsModalOpen(true)}>Add a card +</div>
+      {isModalOpen && <SnippetForm closeModal={() => setIsModalOpen(false)} isAdding={true} listId={list.id} updateCard={handleUpdateCard} />}
     </div>
   );
 };

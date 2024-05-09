@@ -3,8 +3,9 @@ import { useEffect, useState } from "react"
 import * as monaco from 'monaco-editor';
 
 export default function CodeEditor({initialValue, onChange, language}) {
-    const [editorLanguage, setEditorLanguage] = useState(language);
-
+    const defaultLanguage = language !== "" ? language : 'javascript';
+    const [editorLanguage, setEditorLanguage] = useState(defaultLanguage);
+    
     useEffect(() => {
         // Update the language in the editor when language prop changes
         setEditorLanguage(language);
@@ -16,7 +17,7 @@ export default function CodeEditor({initialValue, onChange, language}) {
             <Editor width="100%"
             height="400px"
             theme="vs-dark"
-            // defaultLanguage={editorLanguage}
+            defaultLanguage={language}
             language={editorLanguage}
             value={initialValue}
             onChange={onChange}/>
