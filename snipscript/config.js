@@ -56,7 +56,9 @@ app.get('/boards/:userId', async (request, response) => {
     try {
         const connection = await pool.getConnection();
         const userId = request.params.userId;
-        const [rows] = await connection.query("SELECT * FROM boards WHERE user_id = ?", [userId]);
+        const [rows] = await connection.query("SELECT B.*, COUNT(CS.id) AS num_of_snippets " + 
+            "FROM BOARDS B JOIN USERS U ON U.id = B.user_id LEFT JOIN LISTS L ON B.id = L.board_id " +
+            "LEFT JOIN CODESNIPPETS CS ON L.id = CS.list_id WHERE U.id = ? GROUP BY B.id ORDER BY B.board_name;", [userId]);
         connection.release();
         response.status(200).json(rows);
     } catch (error) {
@@ -83,6 +85,23 @@ app.post('/boards/add', async (request, response) => {
         response.status(400).json({ Error: "Error in the SQL statement. Please check." });
     }
 });
+
+app.delete('/boards/:boardId', async (request, response) => {
+    try {
+        const connection = await pool.getConnection();
+        const boardId = request.params.boardId;
+        const [result] = await connection.query("DELETE FROM boards WHERE id = ?", [boardId]);
+        connection.release();
+        if (result.affectedRows === 1) {
+            response.status(201).json({ success: true, message: "Successfully deleted board"});
+        } else {
+            response.status(500).json({ success: false, message: "Failed to delete board" });
+        }
+    } catch (error) {
+        console.error("Error executing SQL query:", error);
+        response.status(400).json({ Error: "Error in the SQL statement. Please check." });
+    }
+})
 
 app.get('/lists/:boardId', async (request, response) => {
     try {

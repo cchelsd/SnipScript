@@ -9,28 +9,13 @@ export default function Dashboard() {
     const [boards, setBoards] = useState([]);
     const user = localStorage.getItem("Current user id");
 
-
-    // useEffect(() => {
-    //     if (user) {
-    //         fetch(`http://localhost:3001/boards/${user}`)
-    //         .then(response => {
-    //             if (!response.ok) {
-    //             throw new Error('Network response was not ok');
-    //             }
-    //             return response.json();
-    //         })
-    //         .then(data => {
-    //             setBoards(data);
-    //         })
-    //         .catch(error => {
-    //             console.error('Error:', error);
-    //         });
-    //     }
-    // }, [])
-
     const fetchBoards = () => {
         if (user) {
-            fetch(`http://localhost:3001/boards/${user}`)
+            fetch(`http://localhost:3001/boards/${user}`, {
+                method: 'GET',
+                headers: {
+                  'Content-Type': 'application/json',
+                }})
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
@@ -39,6 +24,7 @@ export default function Dashboard() {
                 })
                 .then(data => {
                     setBoards(data);
+                    console.log("Data:", data);
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -57,7 +43,7 @@ return (
             <div className="mt-48 grid gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 p-4 md:p-2 xl:p-5">
                 <EmptyState updateBoards={fetchBoards}/>
                 {boards.map(board => (
-                    <BoardCard key={board.id} board={board} />
+                    <BoardCard key={board.id} snippets={board.num_of_snippets} board={board} />
                 ))}
             </div>
         </div>

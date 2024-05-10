@@ -2,12 +2,13 @@ import React from 'react';
 import List from '../components/list';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 const Board = () => {
 
   const [lists, setLists] = useState([]);
   const { boardName, boardId } = useParams();
+  const navigate = useNavigate();
 
   const fetchLists = () => {
     fetch(`http://localhost:3001/lists/${boardId}`)
@@ -46,6 +47,7 @@ const Board = () => {
 
   useEffect(() => {
     console.log("board name", boardName);
+    
     fetchLists();
   }, [boardId]);
 
@@ -89,12 +91,32 @@ const Board = () => {
     });
   };
 
+  const handleDelete = () => {
+    fetch(`http://localhost:3001/boards/${boardId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      } else {
+        console.log('Successfully deleted board');
+        navigate('/dashboard');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+  }
+
   return (
     // Set color here
     <div className='h-full'>
       <div className='flex justify-between px-4 bg-white h-12 items-center text-lg font-semibold rounded-xl m-3 shadow-lg'>
         <h1>{boardName}</h1>
-        <button className='bg-red-600 px-4 py-1 text-sm rounded-md text-white'>Delete Board</button>
+        <button onClick={handleDelete} className='bg-red-600 px-4 py-1 text-sm rounded-md text-white'>Delete Board</button>
       </div>
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId={boardId.toString()}>

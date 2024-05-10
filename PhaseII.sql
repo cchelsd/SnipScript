@@ -308,7 +308,7 @@ WHERE title LIKE '%java%' OR snippet_description LIKE '%java%';
 -- PURPOSE: Retrieves all the boards of a user and the number of snippets in each board. 
 -- EXPECTED: A table including info about all of a user's boards, including the board ID and the count of snippets in each board.
 -- NOTE: User will be dynamically set based on current user. For now, we'll test with user 1.
-SELECT b.id AS "Board ID", COUNT(CS.id) AS "Number of Snippets"
+SELECT B.id AS "Board ID", COUNT(CS.id) AS "Number of Snippets"
 FROM USERS U
 JOIN BOARDS B ON U.id = B.user_id
 LEFT JOIN LISTS L ON B.id = L.board_id
