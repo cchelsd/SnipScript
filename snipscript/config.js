@@ -9,11 +9,11 @@ app.use(cors());
 app.use(express.json());
 
 const mysqlConfig = {
-    host: "localhost", 
-    port: 3307,
+    host: "snipscript.cehk5rpunxzw.us-east-2.rds.amazonaws.com", 
+    port: 3306,
     user: "developer", 
-    password: "devpass3",
-    database: "SnipScript"
+    password: "devpass3!",
+    database: "snipscript"
 };
 
 const pool = mysql.createPool(mysqlConfig);
@@ -57,8 +57,8 @@ app.get('/boards/:userId', async (request, response) => {
         const connection = await pool.getConnection();
         const userId = request.params.userId;
         const [rows] = await connection.query("SELECT B.*, COUNT(CS.id) AS num_of_snippets " + 
-            "FROM BOARDS B JOIN USERS U ON U.id = B.user_id LEFT JOIN LISTS L ON B.id = L.board_id " +
-            "LEFT JOIN CODESNIPPETS CS ON L.id = CS.list_id WHERE U.id = ? GROUP BY B.id ORDER BY B.board_name;", [userId]);
+            "FROM Boards B JOIN Users U ON U.id = B.user_id LEFT JOIN Lists L ON B.id = L.board_id " +
+            "LEFT JOIN CodeSnippets CS ON L.id = CS.list_id WHERE U.id = ? GROUP BY B.id ORDER BY B.board_name;", [userId]);
         connection.release();
         response.status(200).json(rows);
     } catch (error) {
@@ -73,7 +73,7 @@ app.post('/boards/add', async (request, response) => {
         const connection = await pool.getConnection();
         const userId = request.body.userId;
         const boardName = request.body.boardName;
-        const [result] = await connection.query("INSERT INTO boards (user_id, board_name) VALUES (?, ?)", [userId, boardName]);
+        const [result] = await connection.query("INSERT INTO Boards (user_id, board_name) VALUES (?, ?)", [userId, boardName]);
         connection.release();
         if (result.affectedRows === 1) {
             response.status(201).json({ success: true, message: "Successfully added board"});
@@ -90,7 +90,7 @@ app.delete('/boards/:boardId', async (request, response) => {
     try {
         const connection = await pool.getConnection();
         const boardId = request.params.boardId;
-        const [result] = await connection.query("DELETE FROM boards WHERE id = ?", [boardId]);
+        const [result] = await connection.query("DELETE FROM Boards WHERE id = ?", [boardId]);
         connection.release();
         if (result.affectedRows === 1) {
             response.status(201).json({ success: true, message: "Successfully deleted board"});
@@ -200,7 +200,7 @@ app.post('/login', async (request, response) => {
   try {
       const connection = await pool.getConnection();   
       // Check if the user exists with the provided username and password
-      const [rows] = await connection.query("SELECT * FROM users WHERE username = ?", [username]);
+      const [rows] = await connection.query("SELECT * FROM Users WHERE username = ?", [username]);
       connection.release();
 
       if (rows.length > 0) {
@@ -233,7 +233,7 @@ app.post('/register', async (request, response) => {
     try {
         const connection = await pool.getConnection();   
         // Check if the user already exists
-        const [existingUsers] = await connection.query("SELECT * FROM users WHERE username = ?", [username]);
+        const [existingUsers] = await connection.query("SELECT * FROM Users WHERE username = ?", [username]);
         if (existingUsers.length > 0) {
             // User already exists
             response.status(400).json({ success: false, message: "User already exists. Please choose a different username or sign in." });
@@ -242,7 +242,7 @@ app.post('/register', async (request, response) => {
         }
         // Insert the new user into the database
         const hashedPassword = await hashPassword(password);
-        const [result] = await connection.query("INSERT INTO users (username, password_hash) VALUES (?, ?)", [username, hashedPassword]);
+        const [result] = await connection.query("INSERT INTO Users (username, password_hash) VALUES (?, ?)", [username, hashedPassword]);
         
         connection.release();
 
