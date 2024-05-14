@@ -119,6 +119,24 @@ app.get('/lists/:boardId', async (request, response) => {
     }
 })
 
+app.post('/lists', async(request, response) => {
+    try {
+        const connection = await pool.getConnection();
+        const { userId, boardId, listName} = request.body;
+        const [result] = await connection.query("INSERT INTO Lists (user_id, board_id, list_name)" + 
+        "VALUES (?, ?, ?)", [userId, boardId, listName]);
+        connection.release();
+        if (result.affectedRows === 1) {
+            response.status(201).json({ success: true, message: "Successfully added list"});
+        } else {
+            response.status(500).json({ success: false, message: "Failed to add list" });
+        }
+    } catch (error) {
+        console.error("Error executing SQL query:", error);
+        response.status(400).json({ Error: "Error in the SQL statement. Please check." });
+    }
+})
+
 app.post('/snippet', async(request, response) => {
     try {
         const connection = await pool.getConnection();
@@ -192,6 +210,26 @@ app.put('/snippet/drag/:listId', async(request, response) => {
         response.status(400).json({ Error: "Error updating the snippet. Please check." });
     }
 })
+
+app.get('/explore', async(request, response) => {
+    try {
+        const connection = await pool.getConnection();
+        const [result] =  await connection.query(
+        `SELECT CS.*, U.username, GROUP_CONCAT(ST.tag) AS tags
+        FROM CodeSnippets CS
+        JOIN Users U ON CS.user_id = U.id
+        JOIN SnippetTags ST ON CS.id = ST.snippet_id
+        WHERE CS.privacy = 0
+        GROUP BY CS.id;`);
+        connection.release();
+        response.status(200).json(result);
+    } catch (error) {
+        console.error("Error executing SQL query:", error);
+        response.status(400).json({ Error: "Error in the SQL statement. Please check." });
+    }
+})
+
+
 
 // ------------- Authentication ------------- //
 

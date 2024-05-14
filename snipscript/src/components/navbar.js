@@ -21,7 +21,7 @@ export default function Navbar() {
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', current: true },
-    { name: 'Explore', href: '/board', current: false },
+    { name: 'Explore', href: '/explore', current: false },
     { name: 'Bookmarks', href: '/bookmarks', current: false },
     { name: loginButton, href: '/authentication', current: false},
   ]

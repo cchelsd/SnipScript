@@ -2,10 +2,10 @@ import { BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 import BoardCard from "./components/board_card";
 import Navbar from "./components/navbar";
 import Dashboard from "./pages/dashboard";
-// import Explore from './components/Explore';
 // import Bookmarks from './components/Bookmarks';
 import Board from './pages/board';
 import Auth from './pages/authentication';
+import Explore from './pages/explore';
 
 function App() {
 
@@ -43,6 +43,7 @@ function App() {
         <Routes>
             {/* <Route path="/" element={<Dashboard/>} /> */}
             <Route path="/dashboard" element={<Dashboard/>} />
+            <Route path="/explore" element={<Explore/>} />
             <Route path="/board/:boardName/:boardId" element={<Board lists={initialData.columns} onDragEnd={onDragEnd}/>} />
             <Route path="/authentication" element={<Auth/>} />
             {/* <Route path="/bookmarks" component={Bookmarks} /> */}

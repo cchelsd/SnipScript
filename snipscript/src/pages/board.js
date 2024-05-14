@@ -7,7 +7,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 const Board = () => {
 
   const [lists, setLists] = useState([]);
+  const [listName, setListName] = useState("");
+  const [openListModal, setOpenListModal] = useState(false);
   const { boardName, boardId } = useParams();
+  const userId = localStorage.getItem("Current user id");
+
   const navigate = useNavigate();
 
   const fetchLists = () => {
@@ -111,6 +115,28 @@ const Board = () => {
     });
   }
 
+  const handleAddList = () => {
+    fetch(`http://localhost:3001/lists`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId: userId, boardId: boardId, listName: listName}),
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      } else {
+        console.log('Successfully added list');
+        fetchLists();
+        setOpenListModal(false);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+  }
+
   return (
     // Set color here
     <div className='h-full'>
@@ -130,6 +156,26 @@ const Board = () => {
           )}
         </Droppable>
       </DragDropContext>
+      <div className='text-center p-2 bg-white rounded-xl w-2/12 cursor-pointer' onClick={() => setOpenListModal(true)}>Add a list +</div>
+      {openListModal && (
+        <div className="flex justify-center items-center bg-black fixed z-1 bg-opacity-60 inset-0 left-0 -top-2">
+          <div className="bg-white h-1/4 w-2/4 rounded-2xl p-5 max-h-[calc(100vh - 100px] overflow-y-auto">
+                <h1 className='text-center mb-4'>Create List</h1>
+                <label htmlFor="name" className="ml-px block pl-4 text-sm font-medium leading-6 text-gray-900">Name</label>
+                <input
+                type="text"
+                id="name"
+                onChange={(e) => setListName(e.target.value)}
+                className="mt-2 block w-full rounded-full border-0 px-4 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                placeholder="Enter name"
+                />
+                <div className="flex justify-between">
+                    <button onClick={() => setOpenListModal(false)} className='rounded-full bg-gray-900 text-white px-6 py-2 mt-4'>Close</button>
+                    <button onClick={handleAddList} className='rounded-full bg-gray-900 text-white px-6 py-2 mt-4'>Create List</button>
+                </div>
+            </div>
+        </div>
+      )}
     </div>
   );
 };
