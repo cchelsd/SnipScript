@@ -39,8 +39,8 @@ export default function Dashboard() {
     
 return (
     <>
-        <div className="flex w-full justify-center items-center bg-transparent overflow-auto">
-            <div className="mt-48 grid gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 p-4 md:p-2 xl:p-5">
+        <div className="flex w-full justify-center items-center bg-transparent overflow-auto h-full">
+            <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 p-4 md:p-2 xl:p-5">
                 <EmptyState updateBoards={fetchBoards}/>
                 {boards.map(board => (
                     <BoardCard key={board.id} snippets={board.num_of_snippets} board={board} />

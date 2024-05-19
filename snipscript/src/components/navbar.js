@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 export default function Navbar() {
 
   const [showDropdown, setShowDropdown] = useState(false);
+  const [ activeLink, setActiveLink ] = useState('/');
   const navigate = useNavigate();
 
   const handleSignOut = () => {
@@ -20,10 +21,10 @@ export default function Navbar() {
   const loginButton = user ? `${user}` : 'Login';
 
   const navigation = [
-    { name: 'Dashboard', href: '/dashboard', current: true },
-    { name: 'Explore', href: '/explore', current: false },
-    { name: 'Bookmarks', href: '/bookmarks', current: false },
-    { name: loginButton, href: '/authentication', current: false},
+    { name: 'Dashboard', href: '/dashboard'},
+    { name: 'Explore', href: '/explore'},
+    { name: 'Bookmarks', href: '/bookmarks'},
+    { name: loginButton, href: '/authentication'},
   ]
 
   function classNames(...classes) {
@@ -42,16 +43,16 @@ export default function Navbar() {
             {navigation.map((item) => (
               <React.Fragment key={item.name}>
               {item.name === user ? (
-                <div className="relative ml-3" onClick={() => setShowDropdown(!showDropdown)}>
+                <div className="relative ml-3" onClick={() => {setShowDropdown(!showDropdown); setActiveLink (item.href)}}>
                   <div>
                     <button
                       className={classNames(
-                        item.current ? 'bg-violet-100 text-black' : 'text-white hover:bg-violet-100 hover:text-black',
+                        item.href === activeLink ? 'bg-violet-100 text-black' : 'text-white hover:bg-violet-100 hover:text-black',
                         'rounded-md px-3 py-2 text-sm font-medium'
                       )}
                       aria-expanded={showDropdown}
                       aria-haspopup="true"
-                      aria-current={item.current ? 'page' : undefined}
+                      aria-current={item.href === activeLink ? 'page' : undefined}
                     >
                       {item.name}
                     </button>
@@ -77,10 +78,11 @@ export default function Navbar() {
                 <Link
                 to={item.href}
                 className={classNames(
-                  item.current ? 'bg-violet-100 text-black' : 'text-white hover:bg-violet-100 hover:text-black',
+                  item.href === activeLink ? 'bg-violet-100 text-black' : 'text-white hover:bg-violet-100 hover:text-black',
                   'rounded-md px-3 py-2 text-sm font-medium'
                 )}
-                aria-current={item.current ? 'page' : undefined}
+                aria-current={item.href === activeLink ? 'page' : undefined}
+                onClick={() => {setActiveLink(item.href); setShowDropdown(false)}}
               >
                 {item.name}
               </Link>

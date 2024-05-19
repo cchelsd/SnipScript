@@ -11,6 +11,7 @@ const Board = () => {
   const [openListModal, setOpenListModal] = useState(false);
   const { boardName, boardId } = useParams();
   const userId = localStorage.getItem("Current user id");
+  
 
   const navigate = useNavigate();
 
@@ -139,24 +140,26 @@ const Board = () => {
 
   return (
     // Set color here
-    <div className='h-full'>
+    <div className='h-full overflow-y-hidden'>
       <div className='flex justify-between px-4 bg-white h-12 items-center text-lg font-semibold rounded-xl m-3 shadow-lg'>
         <h1>{boardName}</h1>
         <button onClick={handleDelete} className='bg-red-600 px-4 py-1 text-sm rounded-md text-white'>Delete Board</button>
       </div>
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable droppableId={boardId.toString()}>
-          {(provided) => (
-            <div {...provided.droppableProps} ref={provided.innerRef} className="flex flex-row">
-              {lists.map((list, index) => (
-                <List key={list.id} list={list} index={index} handleUpdateCard={fetchLists} />
-              ))}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
-      <div className='text-center p-2 bg-white rounded-xl w-2/12 cursor-pointer' onClick={() => setOpenListModal(true)}>Add a list +</div>
+      <div className='overflow-auto mr-3 h-full pb-20'>
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId={boardId.toString()}>
+            {(provided) => (
+              <div ref={provided.innerRef} className='flex flex-row'>
+                {lists.map((list, index) => (
+                  <List key={list.id} list={list} index={index} handleUpdateCard={fetchLists} />
+                ))}
+                {provided.placeholder}
+                <div className='text-center ml-3 mt-3 px-20 bg-white rounded-xl flex items-center h-11 cursor-pointer' onClick={() => setOpenListModal(true)}><span className="whitespace-nowrap">Add a List +</span></div>
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+      </div>
       {openListModal && (
         <div className="flex justify-center items-center bg-black fixed z-1 bg-opacity-60 inset-0 left-0 -top-2">
           <div className="bg-white h-1/4 w-2/4 rounded-2xl p-5 max-h-[calc(100vh - 100px] overflow-y-auto">

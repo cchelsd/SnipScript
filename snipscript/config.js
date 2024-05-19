@@ -140,9 +140,20 @@ app.post('/lists', async(request, response) => {
 app.post('/snippet', async(request, response) => {
     try {
         const connection = await pool.getConnection();
-        const { userId, listId, title, description, code, language} = request.body;
+        const { userId, listId, title, description, code, language, tags} = request.body
+        await connection.beginTransaction();
         const [result] = await connection.query("INSERT INTO CodeSnippets (user_id, list_id, title, snippet_description, code_content, code_language)" + 
         "VALUES (?, ?, ?, ?, ?, ?)", [userId, listId, title, description, code, language]);
+        // Get the newly inserted snippet id
+        const snippetId = result.insertId;
+        // Insert tags into SnippetTags table
+        if (tags && tags.length > 0) {
+            const tagQueries = tags.map(tag => 
+                connection.query("INSERT INTO SnippetTags (snippet_id, tag) VALUES (?, ?)", [snippetId, tag])
+            );
+            await Promise.all(tagQueries);
+        }
+        await connection.commit();
         connection.release();
         if (result.affectedRows === 1) {
             response.status(201).json({ success: true, message: "Successfully added snippet"});
@@ -187,8 +198,16 @@ app.put('/snippet/:snippetId', async(request, response) => {
     try {
         const connection = await pool.getConnection();
         const id = request.params.snippetId;
-        const { title, description, code } = request.body;
-        connection.query("UPDATE CodeSnippets set title = ?, snippet_description = ?, code_content = ? WHERE id = ?", [title, description, code, id]);
+        const { title, description, code, privacy, tags } = request.body;
+        await connection.beginTransaction();
+        // Update the snippet
+        await connection.query("UPDATE CodeSnippets SET title = ?, snippet_description = ?, code_content = ?, privacy = ? WHERE id = ?", [title, description, code, privacy, id]);
+        // Delete existing tags
+        await connection.query("DELETE FROM SnippetTags WHERE snippet_id = ?", [id]);
+        // Insert new tags
+        const tagQueries = tags.map(tag => connection.query("INSERT INTO SnippetTags (snippet_id, tag) VALUES (?, ?)", [id, tag]));
+        await Promise.all(tagQueries);
+        await connection.commit();
         connection.release();
         response.status(200).json({ message: 'Snippet updated successfully' });
     } catch (error) {

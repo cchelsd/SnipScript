@@ -6,6 +6,7 @@ import Dashboard from "./pages/dashboard";
 import Board from './pages/board';
 import Auth from './pages/authentication';
 import Explore from './pages/explore';
+import Landing from './pages/landing';
 
 function App() {
 
@@ -41,7 +42,7 @@ function App() {
       <div className="app-container flex flex-col h-screen">
         <Navbar/>
         <Routes>
-            {/* <Route path="/" element={<Dashboard/>} /> */}
+            <Route path="/" element={<Landing/>} />
             <Route path="/dashboard" element={<Dashboard/>} />
             <Route path="/explore" element={<Explore/>} />
             <Route path="/board/:boardName/:boardId" element={<Board lists={initialData.columns} onDragEnd={onDragEnd}/>} />

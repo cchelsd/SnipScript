@@ -30,7 +30,7 @@ export default function Explore() {
 
     
 return (
-    <div className="flex flex-col">
+    <div className="flex flex-col h-full">
         <h1 className="text-4xl text-center text-white font-semibold mt-12 mb-12">EXPLORE</h1>
         <input type="text" name="search" id="search" placeholder="Search snippets" className="w-1/2 place-self-center rounded-3xl h-11 border-0 py-1.5 pr-14 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-md sm:leading-6" />
         <div className="flex w-full justify-center items-center bg-transparent overflow-auto">

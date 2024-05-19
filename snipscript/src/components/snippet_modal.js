@@ -1,15 +1,20 @@
 import CodeSnippet from "./code_snippet";
 import { useState } from "react";
+import { Switch } from "@headlessui/react";
 import SnippetForm from "./snippet_card_form";
 
 export default function ViewSnippet ({ card, snippetTags, closeModal, updateCard }) {
 
     const [isEditing, setIsEditing] = useState(false);
-    // const [isPublic] = useState(card.privacy)
+    const [publicSetting, setPublicSetting] = useState(card.privacy === 0);
 
 
     const handleEdit = () => {
         setIsEditing(true);
+    }
+
+    function classNames(...classes) {
+        return classes.filter(Boolean).join(' ')
     }
   
     // const [title, setTitle] = useState(cardData.title);
@@ -23,7 +28,7 @@ export default function ViewSnippet ({ card, snippetTags, closeModal, updateCard
     {!isEditing ? (
       <div id="view-snippet-modal" className="flex justify-center items-center bg-black fixed z-1 bg-opacity-60 inset-0 left-0 -top-2">
         <div className="bg-white h-3/4 w-2/4 rounded-2xl p-5 max-h-[calc(100vh - 100px] overflow-y-auto">
-            <span className="bg-blue-200 text-blue-800 px-2 py-1 rounded-full text-xs mr-2 mb-3" ></span>
+            <span className="bg-blue-200 text-blue-800 px-2 py-1 rounded-full text-xs mr-2 mb-3" >{publicSetting ? 'Public' : 'Private'}</span>
             <h1 className='text-gray-900 text-center text-2xl mb-4 font-semibold'>{card.title}</h1>
             <h1 className='text-gray-900 text-lg font-semibold mb-2'>Description</h1>
             <p className="mb-3">{card.snippet_description}</p>
@@ -49,7 +54,9 @@ export default function ViewSnippet ({ card, snippetTags, closeModal, updateCard
             </div>
             <div className="flex justify-between mt-12">
                 <button onClick={() => closeModal()} className='rounded-full bg-gray-900 text-white px-6 py-2 mt-4'>Close</button>
-                <button onClick={() => handleEdit()}className='rounded-full bg-gray-900 text-white px-6 py-2 mt-4'>Edit</button>
+                {updateCard && (
+                    <button onClick={() => handleEdit()}className='rounded-full bg-gray-900 text-white px-6 py-2 mt-4'>Edit</button>
+                )}
             </div>     
         </div>
       </div>
