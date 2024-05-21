@@ -45,13 +45,16 @@ const comparePassword = async (password, hash) => {
     }
 };
 
-/**
+/**********************************************
+ * 
  * Endpoints
- */
+ * 
+ **********************************************/
 
 
 // ------------- Board and Lists ------------- //
 
+// Query 6 of Phase III: Retrieves all the boards of a user and the number of snippets in each board. 
 app.get('/boards/:userId', async (request, response) => {
     try {
         const connection = await pool.getConnection();
@@ -67,7 +70,7 @@ app.get('/boards/:userId', async (request, response) => {
     }
 });
 
-
+// Creates a new board for the user. 
 app.post('/boards/add', async (request, response) => {
     try {
         const connection = await pool.getConnection();
@@ -86,6 +89,7 @@ app.post('/boards/add', async (request, response) => {
     }
 });
 
+// Deletes a board.
 app.delete('/boards/:boardId', async (request, response) => {
     try {
         const connection = await pool.getConnection();
@@ -103,6 +107,8 @@ app.delete('/boards/:boardId', async (request, response) => {
     }
 })
 
+// Query 10 of Phase III: Retrieves data about the lists and code snippets within a single board belonging to a user.
+// NOTE: Modify to retrieve all columns from CodeSnippets
 app.get('/lists/:boardId', async (request, response) => {
     try {
         const connection = await pool.getConnection();
@@ -119,6 +125,7 @@ app.get('/lists/:boardId', async (request, response) => {
     }
 })
 
+// Creates a new list
 app.post('/lists', async(request, response) => {
     try {
         const connection = await pool.getConnection();
@@ -137,6 +144,9 @@ app.post('/lists', async(request, response) => {
     }
 })
 
+// ------------- CodeSnippets ------------- //
+
+// Creates a code snippet
 app.post('/snippet', async(request, response) => {
     try {
         const connection = await pool.getConnection();
@@ -166,6 +176,7 @@ app.post('/snippet', async(request, response) => {
     }
 })
 
+// Retrieves all tags associated with given code snippet
 app.get('/snippet/tags/:snippetId', async(request, response) => {
     try {
         const connection = await pool.getConnection();
@@ -180,6 +191,7 @@ app.get('/snippet/tags/:snippetId', async(request, response) => {
     }
 })
 
+// Retrieves all data about a given code snippet
 app.get('/snippet/:snippetId', async(request, response) => {
     try {
         const connection = await pool.getConnection();
@@ -194,6 +206,7 @@ app.get('/snippet/:snippetId', async(request, response) => {
     }
 })
 
+// Updates data of a given code snippet
 app.put('/snippet/:snippetId', async(request, response) => {
     try {
         const connection = await pool.getConnection();
@@ -216,6 +229,7 @@ app.put('/snippet/:snippetId', async(request, response) => {
     }
 })
 
+// Updates the list a snippet is associated with (i.e. moving a code snippet to a different list).
 app.put('/snippet/drag/:listId', async(request, response) => {
     try {
         const connection = await pool.getConnection();
@@ -230,6 +244,7 @@ app.put('/snippet/drag/:listId', async(request, response) => {
     }
 })
 
+// Query 9 of Phase III: Retrieves all public code snippets along with their tags and the username of the snippet owner.
 app.get('/explore', async(request, response) => {
     try {
         const connection = await pool.getConnection();
@@ -248,10 +263,23 @@ app.get('/explore', async(request, response) => {
     }
 })
 
-
+/**
+ * TO-DO: 
+ * 
+ * Query 2: Retrieve most popular tags among all public code snippets. This can help users discover trending topics on the explore page.
+ * 
+ * Query 4: Search for code snippets based on title, description, and tags for the explore page (searches all user's public snippets).
+ * 
+ * Query 7: Retrieve the 5 most recent code snippets added by the user across all of their boards.
+ * 
+ * Query 8: Retrieve a user's top 5 most popular snippets based on the collective stats of views, copies, and bookmarks.
+ * 
+ * Query that will update rating, numOfViews, and numOfCopies in CodeSnippets.
+ */
 
 // ------------- Authentication ------------- //
 
+// Login authentication
 app.post('/login', async (request, response) => {
   const { username, password } = request.body;
   try {
@@ -285,6 +313,7 @@ app.post('/login', async (request, response) => {
   }
 });
 
+// Creates a new user
 app.post('/register', async (request, response) => {
     const { username, password } = request.body;
     try {
@@ -317,5 +346,5 @@ app.post('/register', async (request, response) => {
         console.error("Error executing SQL query:", error);
         response.status(500).json({ success: false, message: "Internal server error" });
     }
-  });
+});
 
