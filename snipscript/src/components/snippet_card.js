@@ -35,7 +35,7 @@ export default function SnippetCard({ snippet }) {
             display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{snippet.snippet_description}</p>
           <div className="flex flex-wrap">
               {snippetTags && (snippetTags.tags.map((tag, index) => (
-                  <span key={index} className="bg-blue-200 text-blue-800 px-2 py-1 rounded-full text-xs mr-2 mb-2" >{tag}</span>
+                  <span key={index} className="bg-violet-200 text-violet-800 px-2 py-1 rounded-full text-xs mr-2 mb-2" >{tag}</span>
               )))}
           </div>
       </div>

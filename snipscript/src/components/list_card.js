@@ -45,7 +45,7 @@ const ListCard = ({ card, index, updateCard }) => {
   }, [card]);
 
   return (
-    <>
+    <div>
     {snippetData && snippetTags ? (
         <Draggable draggableId={card.id.toString()} index={index}>
           {(provided) => (
@@ -54,7 +54,7 @@ const ListCard = ({ card, index, updateCard }) => {
               <p className="text-sm text-gray-600 mb-2">{snippetData.snippet_description}</p>
               <div className="flex flex-wrap">
                 {snippetTags.tags.map((tag, index) => (
-                  <span key={index} className="bg-blue-200 text-blue-800 px-2 py-1 rounded-full text-xs mr-2 mb-2" >{tag}</span>
+                  <span key={index} className="bg-violet-200 text-violet-800 px-2 py-1 rounded-full text-xs mr-2 mb-2" >{tag}</span>
                 ))}
               </div>
             </div>
@@ -63,7 +63,7 @@ const ListCard = ({ card, index, updateCard }) => {
       ) : null}
       {/* {isModalOpen && <SnippetForm card={snippetData} snippetTags={snippetTags} closeModal={() => setIsModalOpen(false)} updateCard={updateCard} />} */}
       {isModalOpen && <ViewSnippet card={snippetData} snippetTags={snippetTags} closeModal={() => setIsModalOpen(false)} updateCard={updateCard}/>}
-    </>
+    </div>
   );
 };
 

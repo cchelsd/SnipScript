@@ -28,14 +28,14 @@ export default function ViewSnippet ({ card, snippetTags, closeModal, updateCard
     {!isEditing ? (
       <div id="view-snippet-modal" className="flex justify-center items-center bg-black fixed z-1 bg-opacity-60 inset-0 left-0 -top-2">
         <div className="bg-white h-3/4 w-2/4 rounded-2xl p-5 max-h-[calc(100vh - 100px] overflow-y-auto">
-            <span className="bg-blue-200 text-blue-800 px-2 py-1 rounded-full text-xs mr-2 mb-3" >{publicSetting ? 'Public' : 'Private'}</span>
+            <span className="bg-violet-200 text-violet-800 px-2 py-1 rounded-full text-xs mr-2 mb-3" >{publicSetting ? 'Public' : 'Private'}</span>
             <h1 className='text-gray-900 text-center text-2xl mb-4 font-semibold'>{card.title}</h1>
             <h1 className='text-gray-900 text-lg font-semibold mb-2'>Description</h1>
             <p className="mb-3">{card.snippet_description}</p>
             <h1 className='text-gray-900 text-lg font-semibold mb-2'>Tags</h1>
             <div className="flex flex-wrap">
                 {snippetTags.tags.map((tag, index) => (
-                <span key={index} className="bg-blue-200 text-blue-800 px-2 py-1 rounded-full text-xs mr-2 mb-3" >{tag}</span>
+                <span key={index} className="bg-violet-200 text-violet-800 px-2 py-1 rounded-full text-xs mr-2 mb-3" >{tag}</span>
                 ))}
             </div>
             <h1 className='text-gray-900 text-lg font-semibold'>Snippet</h1>

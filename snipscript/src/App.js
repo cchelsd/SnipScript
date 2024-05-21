@@ -7,6 +7,7 @@ import Board from './pages/board';
 import Auth from './pages/authentication';
 import Explore from './pages/explore';
 import Landing from './pages/landing';
+import Analytics from './pages/analytics';
 
 function App() {
 
@@ -47,6 +48,7 @@ function App() {
             <Route path="/explore" element={<Explore/>} />
             <Route path="/board/:boardName/:boardId" element={<Board lists={initialData.columns} onDragEnd={onDragEnd}/>} />
             <Route path="/authentication" element={<Auth/>} />
+            <Route path="/analytics" element={<Analytics/>} />
             {/* <Route path="/bookmarks" component={Bookmarks} /> */}
         </Routes>
         <div className="flex-1 -z-50 relative">
