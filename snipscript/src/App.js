@@ -37,7 +37,8 @@ function App() {
   const onDragEnd = (result) => {
     console.log("Drag");
     // Logic to update the state based on drag and drop result
-  };
+     
+    };
 
   return (
       <div className="app-container flex flex-col h-screen">
