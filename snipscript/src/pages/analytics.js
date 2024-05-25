@@ -64,7 +64,7 @@ export default function Analytics() {
   return (
     <div className="flex flex-col items-center justify-center">
       <h1 className="mt-12 mb-12 text-4xl font-semibold text-center text-white">
-        SNIPPET ANALYTICS
+        Your Snippet Analytics
       </h1>
       <div className="grid w-3/4 h-32 grid-cols-3 gap-10">
         <div className="bg-white p-3 rounded-[20px] text-center">
@@ -82,9 +82,7 @@ export default function Analytics() {
           <h1 className="text-5xl font-semibold">{numOfCopies}</h1>
         </div>
       </div>
-      <h1 className="mt-20 text-3xl font-medium text-white">
-        Your Top 5 Snippets
-      </h1>
+      <h1 className="mt-20 text-3xl font-medium text-white">Top 5 Snippets</h1>
       <p className="mt-3 text-lg text-white">
         Based on collective stats of upvotes, views, and copies
       </p>
@@ -93,24 +91,26 @@ export default function Analytics() {
           topSnippets.map((snippet) => (
             <li
               key={snippet.id}
-              className="w-3/4 p-5 mb-5 bg-gray-700 rounded-lg"
+              className="w-3/4 p-5 mb-5 text-center bg-gray-700 rounded-lg"
             >
               <h2 className="mb-2 text-2xl font-semibold">
                 Title: {snippet.title || "Title not listed."}
               </h2>
               <p className="mb-2 text-lg">
-                Description:{" "}
+                <span className="font-bold">Description: </span>
                 {snippet.snippet_description || "Description not listed."}
               </p>
-              <pre className="p-2 mb-2 bg-gray-800 rounded">
+              <p className="mb-2 text-sm">
+                <span className="font-bold">Language: </span>
+                {snippet.code_language || "Language not listed."}
+              </p>
+              <p className="mb-2 text-sm">
+                <span className="font-bold">Total Stats: </span>
+                {snippet.Total_Stats || "Stats not available."}
+              </p>
+              <pre className="p-2 bg-gray-800 rounded">
                 {snippet.code_content || "Code not listed."}
               </pre>
-              <p className="mb-2 text-sm">
-                Language: {snippet.code_language || "Language not listed."}
-              </p>
-              <p className="text-sm">
-                Total Stats: {snippet.Total_Stats || "Stats not available."}
-              </p>
             </li>
           ))
         ) : (
@@ -118,31 +118,34 @@ export default function Analytics() {
         )}
       </ul>
       <h1 className="mt-20 text-3xl font-medium text-white">
-        Your 5 Most Recent Snippets
+        5 Most Recent Snippets
       </h1>
       <ul className="flex flex-col items-center w-full mt-5 text-white">
         {recentSnippets.length > 0 ? (
           recentSnippets.map((snippet) => (
             <li
               key={snippet.id}
-              className="w-3/4 p-5 mb-5 bg-gray-700 rounded-lg"
+              className="w-1/4 p-5 mb-5 text-center bg-gray-600 rounded-bg"
             >
               <h2 className="mb-2 text-2xl font-semibold">
                 Title: {snippet.title || "Title not listed."}
               </h2>
-              <p className="mb-2 text-lg">
-                Description:{" "}
+              <div className="mb-2 text-lg">
+                <span className="font-bold">Description: </span>
                 {snippet.snippet_description || "Description not listed."}
-              </p>
+              </div>
+              <div className="flex items-center justify-center mb-2 text-lg">
+                {" "}
+                <span className="mr-2 font-bold">Language: </span>
+                {snippet.code_language || "Language not listed."}
+              </div>
               <pre className="p-2 mb-2 bg-gray-800 rounded">
                 {snippet.code_content || "Code not listed."}
               </pre>
-              <p className="mb-2 text-sm">
-                Language: {snippet.code_language || "Language not listed."}
-              </p>
-              <p className="text-sm">
-                Date Posted: {snippet.date_posted || "Date not available."}
-              </p>
+              <div className="text-sm">
+                <span className="font-bold">Date Posted: </span>
+                {snippet.date_posted || "Date not available."}
+              </div>
             </li>
           ))
         ) : (
