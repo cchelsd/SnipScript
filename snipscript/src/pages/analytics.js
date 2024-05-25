@@ -125,7 +125,7 @@ export default function Analytics() {
           recentSnippets.map((snippet) => (
             <li
               key={snippet.id}
-              className="w-1/4 p-5 mb-5 text-center bg-gray-600 rounded-bg"
+              className="w-1/4 p-5 mb-5 text-center bg-purple-500 rounded-bg"
             >
               <h2 className="mb-2 text-2xl font-semibold">
                 Title: {snippet.title || "Title not listed."}
