@@ -6,6 +6,7 @@ export default function Explore() {
   const [allSnippets, setAllSnippets] = useState([]); // Store all snippets for filtering
   const [tags, setTags] = useState([]);
   const [selectedTag, setSelectedTag] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const fetchSnippets = () => {
     fetch(`http://localhost:3001/explore`, {
@@ -62,23 +63,66 @@ export default function Explore() {
     }
   };
 
+  const handleSearch = (query) => {
+    fetch(`http://localhost:3001/search?query=${query}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setSnippets(data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+
   useEffect(() => {
     fetchSnippets();
     fetchTags();
   }, []);
+
+  const handleSearchInputChange = (event) => {
+    setSearchQuery(event.target.value);
+    if (event.target.value === "") {
+      setSnippets(allSnippets); // Reset to all snippets if search query is empty
+    }
+  };
+
+  const handleSearchSubmit = (event) => {
+    event.preventDefault();
+    handleSearch(searchQuery);
+  };
 
   return (
     <div className="flex flex-col h-full">
       <h1 className="mt-12 mb-12 text-4xl font-semibold text-center text-white">
         EXPLORE
       </h1>
-      <input
-        type="text"
-        name="search"
-        id="search"
-        placeholder="Search snippets"
-        className="w-1/2 place-self-center rounded-3xl h-11 border-0 py-1.5 pr-14 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-md sm:leading-6"
-      />
+      <form onSubmit={handleSearchSubmit} className="flex justify-center mb-4">
+        <input
+          type="text"
+          name="search"
+          id="search"
+          placeholder="Search snippets"
+          value={searchQuery}
+          onChange={handleSearchInputChange}
+          className="w-1/2 rounded-3xl h-11 border-0 py-1.5 pr-14 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-md sm:leading-6"
+        />
+        <button
+          type="submit"
+          className="px-4 py-2 ml-4 text-white bg-blue-600 rounded-full hover:bg-blue-700"
+        >
+          Search
+        </button>
+      </form>
       <div className="flex flex-wrap justify-center mt-4">
         <button
           className={`m-2 px-4 py-2 rounded-full hover:bg-blue-700 ${
