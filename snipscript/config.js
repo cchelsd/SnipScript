@@ -348,4 +348,47 @@ app.post('/register', async (request, response) => {
     }
 });
 
+// Query 2: Retrieve most popular tags among all public code snippets.
+app.get('/popular-tags', async (req, res) => {
+    try {
+        const connection = await pool.getConnection();
+        const [result] = await connection.query(
+            `SELECT ST.tag, COUNT(ST.tag) AS tag_count
+             FROM CodeSnippets CS
+             JOIN SnippetTags ST ON CS.id = ST.snippet_id
+             WHERE CS.privacy = 0
+             GROUP BY ST.tag
+             ORDER BY tag_count DESC
+             LIMIT 10;`
+        );
+        connection.release();
+        res.status(200).json(result);
+    } catch (error) {
+        console.error("Error executing SQL query:", error);
+        res.status(400).json({ Error: "Error in the SQL statement. Please check." });
+    }
+});
 
+// Query 4: Search for code snippets based on title, description, and tags for the explore page.
+app.get('/search', async (req, res) => {
+    try {
+        const connection = await pool.getConnection();
+        const { query } = req.query;
+
+        const [result] = await connection.query(
+            `SELECT CS.*, U.username, GROUP_CONCAT(ST.tag) AS tags
+             FROM CodeSnippets CS
+             JOIN Users U ON CS.user_id = U.id
+             LEFT JOIN SnippetTags ST ON CS.id = ST.snippet_id
+             WHERE CS.privacy = 0
+             AND (CS.title LIKE ? OR CS.snippet_description LIKE ? OR ST.tag LIKE ?)
+             GROUP BY CS.id;`,
+            [`%${query}%`, `%${query}%`, `%${query}%`]
+        );
+        connection.release();
+        res.status(200).json(result);
+    } catch (error) {
+        console.error("Error executing SQL query:", error);
+        res.status(400).json({ Error: "Error in the SQL statement. Please check." });
+    }
+});
