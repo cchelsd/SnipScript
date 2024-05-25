@@ -22,7 +22,7 @@ export default function Landing() {
             streamlining their workflow.
           </p>
           <button
-            className="p-4 font-semibold text-white rounded-lg bg-violet-800"
+            className="p-4 font-semibold text-white rounded-lg bg-violet-800 hover:bg-violet-900 backdrop:"
             onClick={handleNav}
           >
             Get started with SnipScript
@@ -39,8 +39,8 @@ export default function Landing() {
         <p className="mb-12 font-semibold text-center">
           SnipScript is the ultimate tool for developers to manage and explore
           code snippets. Designed with productivity in mind, SnipScript offers a
-          seamless experience for organizing and discovering code, ensuring that
-          your development process if efficient and hassel-free.
+          pleasant experience for discovering and organizing code, ensuring that
+          your development process is efficient and hassle-free.
         </p>
         <h1 className="mb-4 text-3xl font-bold text-center">Key Features</h1>
         <div className="grid grid-cols-2 gap-8">
@@ -71,9 +71,9 @@ export default function Landing() {
             <p>
               <span className="font-semibold">• Detailed Snippet View: </span>
               Store information for each snippet, including title, description,
-              tags, code content, and code language. Using a built-in code editor
-              with IntelliSense, you can even type your code directly in our
-              app.
+              tags, code content, and code language. Using a built-in code
+              editor with IntelliSense, you can even type your code directly in
+              our app.
             </p>
             <p>
               <span className="font-semibold">• Drag and Drop: </span>With a
@@ -90,7 +90,8 @@ export default function Landing() {
             </p>
             <p>
               <span className="font-semibold">• Search Snippets: </span>Find
-              exactly what you need by searching by code titles, tags, or descriptions. 
+              exactly what you need by searching by code titles, tags, or
+              descriptions.
             </p>
           </div>
           <div>
@@ -98,7 +99,7 @@ export default function Landing() {
             <p>
               <span className="font-semibold">• Explore Snippets: </span>Keep
               all your code snippets in one place, ensuring you have the right
-              code when you need it. 
+              code when you need it.
             </p>
             <p>
               <span className="font-semibold">• Enhanced Productivity: </span>
@@ -110,7 +111,7 @@ export default function Landing() {
           Developed by: <span className="font-bold">Chelsea Dacones | </span>
           chelsjd@uw.edu, <span className="font-bold">Aryan Damle | </span>
           adamle@uw.edu, and <span className="font-bold">Ares Zhang | </span>
-          aresz@uw.edu 
+          aresz@uw.edu
         </p>
       </div>
     </div>

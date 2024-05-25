@@ -104,7 +104,7 @@ export default function Explore() {
   return (
     <div className="flex flex-col h-full">
       <h1 className="mt-12 mb-12 text-4xl font-semibold text-center text-white">
-        EXPLORE
+        EXPLORE 
       </h1>
       <form onSubmit={handleSearchSubmit} className="flex justify-center mb-4">
         <input
