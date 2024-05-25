@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 const mysql = require("mysql2/promise"); // Import mysql2/promise for async/await support
@@ -9,11 +11,11 @@ app.use(cors());
 app.use(express.json());
 
 const mysqlConfig = {
-  host: "snipscript.cehk5rpunxzw.us-east-2.rds.amazonaws.com",
-  port: 3306,
-  user: "developer",
-  password: "devpass3!",
-  database: "snipscript",
+  host: process.env.DATABASE_HOST,
+  port: process.env.DATABASE_PORT,
+  user: process.env.DATABASE_USER,
+  password: process.env.DATABASE_PASSWORD,
+  database: process.env.DATABASE_NAME,
 };
 
 const pool = mysql.createPool(mysqlConfig);
