@@ -316,6 +316,48 @@ app.put("/snippet/drag/:listId", async (request, response) => {
   }
 });
 
+app.put("/snippet/stats/:snippetId", async (request, response) => {
+  try {
+    const connection = await pool.getConnection();
+    const snippetId = parseInt(request.params.snippetId);
+    const { numOfViews, numOfCopies, rating } = request.body;
+
+    // Build the query dynamically based on provided fields
+    let query = "UPDATE CodeSnippets SET";
+    let queryParams = [];
+    if (numOfViews !== undefined) {
+      query += " numOfViews = ?";
+      queryParams.push(numOfViews);
+    }
+    if (rating !== undefined) {
+      if (queryParams.length > 0) {
+        query += ",";
+      }
+      query += " rating = ?";
+      queryParams.push(rating);
+    }
+    if (numOfCopies !== undefined) {
+      if (queryParams.length > 0) {
+        query += ",";
+      }
+      query += " numOfCopies = ?";
+      queryParams.push(numOfCopies);
+    }
+    query += " WHERE id = ?";
+    queryParams.push(snippetId);
+
+    await connection.query(query, queryParams);
+    const updatedSnippet = await connection.query("SELECT rating, numOfViews FROM CodeSnippets WHERE id = ?", [snippetId]);
+    connection.release();
+    response.status(200).json({ message: "Snippet stats updated successfully", numOfViews: (updatedSnippet[0])[0].numOfViews, numOfUpvotes: (updatedSnippet[0])[0].rating});
+  } catch (error) {
+    console.error("Error updating snippet:", error);
+    response
+      .status(400)
+      .json({ Error: "Error updating the snippet. Please check." });
+  }
+});
+
 // Query 9 of Phase III: Retrieves all public code snippets along with their tags and the username of the snippet owner.
 app.get("/explore", async (request, response) => {
   try {
@@ -394,7 +436,7 @@ app.get("/analytics/recent", async (req, res) => {
     const userId = req.query.user_id;
 
     const [result] = await connection.query(
-      `SELECT CS.id, CS.title, CS.snippet_description, CS.code_content, CS.code_language, CS.date_posted
+      `SELECT CS.*
        FROM CodeSnippets CS
        JOIN Users U ON U.id = CS.user_id
        WHERE CS.user_id = ?
@@ -443,6 +485,70 @@ app.get("/analytics/top", async (req, res) => {
   }
 });
 
+app.get("/bookmark/:userId/:snippetId", async (request, response) => {
+  try {
+    const connection = await pool.getConnection();
+    const { userId, snippetId } = request.params;
+    const [result] = await connection.query(
+      `SELECT COUNT(*) > 0 AS is_bookmarked FROM Bookmarks WHERE user_id = ? AND snippet_id = ?`,
+      [userId, snippetId]
+    );
+    connection.release();
+    response.status(200).json(result);
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    response
+      .status(400)
+      .json({ Error: "Error in the SQL statement. Please check." });
+  }
+})
+
+app.post("/bookmark", async (request, response) => {
+  try {
+    const connection = await pool.getConnection();
+    const { userId, snippetId } = request.body;
+    const [result] = await connection.query("INSERT INTO Bookmarks (user_id, snippet_id) VALUES (?, ?)", [userId, snippetId]);
+    connection.release();
+    if (result.affectedRows === 1) {
+      response
+        .status(201)
+        .json({ success: true, message: "Successfully added bookmark" });
+    } else {
+      response
+        .status(500)
+        .json({ success: false, message: "Failed to add bookmark" });
+    }
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    response
+      .status(400)
+      .json({ Error: "Error in the SQL statement. Please check." });
+  }
+});
+
+app.delete("/bookmark", async (request, response) => {
+  try {
+    const connection = await pool.getConnection();
+    const { userId, snippetId } = request.body;
+    const [result] = await connection.query("DELETE FROM Bookmarks WHERE user_id = ? AND snippet_id = ?", [userId, snippetId]);
+    connection.release();
+    if (result.affectedRows === 1) {
+      response
+        .status(201)
+        .json({ success: true, message: "Successfully deleted bookmark" });
+    } else {
+      response
+        .status(500)
+        .json({ success: false, message: "Failed to delete bookmark" });
+    }
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    response
+      .status(400)
+      .json({ Error: "Error in the SQL statement. Please check." });
+  }
+});
+
 /*
  * Query that will update rating, numOfViews, and numOfCopies in CodeSnippets.
  */
@@ -466,26 +572,20 @@ app.post("/login", async (request, response) => {
       const user = rows[0];
       const hashedPassword = user.password_hash;
 
-      // Compare the provided password with the hashed password from the database
-      // const match = await comparePassword(password, hashedPassword);
+        // Compare the provided password with the hashed password from the database
+        const match = await comparePassword(password, hashedPassword);
 
-      if (user) {
-        // Passwords match, authentication successful
-        response
-          .status(200)
-          .json({ success: true, message: "Login successful", user });
+        if (match) {
+            // Passwords match, authentication successful
+            response.status(200).json({ success: true, message: "Login successful", user });
+        } else {
+            // Passwords don't match, authentication failed
+            response.status(401).json({ success: false, message: "Login failed. Invalid password." });
+        }
       } else {
-        // Passwords don't match, authentication failed
-        response
-          .status(401)
-          .json({ success: false, message: "Login failed. Invalid password." });
+        // User not found, authentication failed
+        response.status(401).json({ success: false, message: "Login failed. Invalid username." });
       }
-    } else {
-      // User not found, authentication failed
-      response
-        .status(401)
-        .json({ success: false, message: "Login failed. Invalid username." });
-    }
   } catch (error) {
     console.error("Error executing SQL query:", error);
     response

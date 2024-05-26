@@ -32,7 +32,7 @@ export default function Navbar() {
   }
 
     return (
-      <nav className="p-4 bg-violet-900 bg-opacity-25">
+      <nav className="p-4 bg-violet-900 bg-opacity-25 flex">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center cursor-pointer" onClick={() => navigate('/')}>
             <img src={icon} alt="Icon" className="h-14 w-14 mr-5" />

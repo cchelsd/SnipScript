@@ -36,7 +36,7 @@ return (
         <div className="flex items-center justify-center w-full overflow-auto bg-transparent">
             <div className="grid grid-cols-1 gap-5 p-4 mx-12 mt-12 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 md:p-2 xl:p-5">
                 {snippets.map(snippet => (
-                    <SnippetCard key={snippet.id} snippet={snippet} />
+                    <SnippetCard key={snippet.id} snippet={snippet} isUsers={false}/>
                 ))}
             </div>
         </div>

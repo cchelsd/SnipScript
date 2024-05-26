@@ -58,11 +58,10 @@ export default function Analytics() {
 
   useEffect(() => {
     fetchTopSnippets();
-    fetchRecentSnippets();
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center">
+    <div className="flex flex-col items-center h-full">
       <h1 className="mt-12 mb-12 text-4xl font-semibold text-center text-white">
         SNIPPET ANALYTICS
       </h1>
@@ -115,38 +114,6 @@ export default function Analytics() {
           ))
         ) : (
           <li className="text-lg">No top snippets available</li>
-        )}
-      </ul>
-      <h1 className="mt-20 text-3xl font-medium text-white">
-        Your 5 Most Recent Snippets
-      </h1>
-      <ul className="flex flex-col items-center w-full mt-5 text-white">
-        {recentSnippets.length > 0 ? (
-          recentSnippets.map((snippet) => (
-            <li
-              key={snippet.id}
-              className="w-3/4 p-5 mb-5 bg-gray-700 rounded-lg"
-            >
-              <h2 className="mb-2 text-2xl font-semibold">
-                Title: {snippet.title || "Title not listed."}
-              </h2>
-              <p className="mb-2 text-lg">
-                Description:{" "}
-                {snippet.snippet_description || "Description not listed."}
-              </p>
-              <pre className="p-2 mb-2 bg-gray-800 rounded">
-                {snippet.code_content || "Code not listed."}
-              </pre>
-              <p className="mb-2 text-sm">
-                Language: {snippet.code_language || "Language not listed."}
-              </p>
-              <p className="text-sm">
-                Date Posted: {snippet.date_posted || "Date not available."}
-              </p>
-            </li>
-          ))
-        ) : (
-          <li className="text-lg">No recent snippets available</li>
         )}
       </ul>
     </div>

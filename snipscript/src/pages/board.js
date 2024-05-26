@@ -50,9 +50,7 @@ const Board = () => {
       });
   };
 
-  useEffect(() => {
-    console.log("board name", boardName);
-    
+  useEffect(() => {    
     fetchLists();
   }, [boardId]);
 

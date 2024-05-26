@@ -4,11 +4,11 @@ import { useState } from 'react';
 import SnippetForm from './snippet_card_form';
 import ViewSnippet from './snippet_modal';
 
-export default function SnippetCard({ snippet }) {
+export default function SnippetCard({ snippet, isUsers }) {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [snippetTags, setSnippetTags] = useState(null);
-
+  const [views, setViews] = useState(snippet.numOfViews);
 
   useEffect(() => {
     const fetchTags = async () => {
@@ -40,7 +40,7 @@ export default function SnippetCard({ snippet }) {
           </div>
       </div>
       {isModalOpen && (
-        <ViewSnippet card={snippet} snippetTags={snippetTags} closeModal={() => setIsModalOpen(false)}></ViewSnippet>
+        <ViewSnippet card={snippet} snippetTags={snippetTags} updateCard={isUsers} closeModal={() => setIsModalOpen(false)}></ViewSnippet>
       )}
     </>
   );
