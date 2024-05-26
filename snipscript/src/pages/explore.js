@@ -102,7 +102,7 @@ export default function Explore() {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full overflow-y-auto">
       <h1 className="mt-12 mb-12 text-4xl font-semibold text-center text-white">
         EXPLORE
       </h1>
@@ -118,17 +118,17 @@ export default function Explore() {
         />
         <button
           type="submit"
-          className="px-4 py-2 ml-4 text-white bg-blue-600 rounded-full hover:bg-blue-700"
+          className="px-4 py-2 ml-4 bg-violet-200 text-violet-800 rounded-full hover:bg-violet-800 hover:text-white"
         >
           Search
         </button>
       </form>
       <div className="flex flex-wrap justify-center mt-4">
         <button
-          className={`m-2 px-4 py-2 rounded-full hover:bg-blue-700 ${
+          className={`m-2 px-4 py-1 rounded-full hover:bg-violet-800 hover:text-white ${
             selectedTag === ""
-              ? "bg-blue-800 text-white"
-              : "bg-blue-600 text-white"
+              ? "bg-violet-800 text-white border border-2 border-violet-200"
+              : "bg-violet-200 text-violet-800"
           }`}
           onClick={() => handleTagClick("")}
         >
@@ -137,10 +137,10 @@ export default function Explore() {
         {tags.map((tag) => (
           <button
             key={tag.tag}
-            className={`m-2 px-4 py-2 rounded-full hover:bg-blue-700 ${
+            className={`m-2 px-4 py-1 rounded-full hover:bg-violet-800 hover:text-white ${
               selectedTag === tag.tag
-                ? "bg-blue-800 text-white"
-                : "bg-blue-600 text-white"
+                ? "bg-violet-800 text-white border border-2 border-violet-200"
+                : "bg-violet-200 text-violet-800"
             }`}
             onClick={() => handleTagClick(tag.tag)}
           >
