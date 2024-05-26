@@ -1,8 +1,5 @@
-import React, { useEffect } from 'react';
-import { Draggable } from 'react-beautiful-dnd';
-import { useState } from 'react';
-import SnippetForm from './snippet_card_form';
-import ViewSnippet from './snippet_modal';
+import React, { useEffect, useState } from "react";
+import ViewSnippet from "./snippet_modal";
 
 export default function SnippetCard({ snippet, isUsers }) {
 
