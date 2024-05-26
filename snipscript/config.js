@@ -322,7 +322,7 @@ app.put("/snippet/stats/:snippetId", async (request, response) => {
   try {
     const connection = await pool.getConnection();
     const snippetId = parseInt(request.params.snippetId);
-    const { numOfViews, numOfCopies, rating } = request.body;
+    const { numOfViews, numOfCopies } = request.body;
 
     // Build the query dynamically based on provided fields
     let query = "UPDATE CodeSnippets SET";
@@ -331,13 +331,13 @@ app.put("/snippet/stats/:snippetId", async (request, response) => {
       query += " numOfViews = ?";
       queryParams.push(numOfViews);
     }
-    if (rating !== undefined) {
-      if (queryParams.length > 0) {
-        query += ",";
-      }
-      query += " rating = ?";
-      queryParams.push(rating);
-    }
+    // if (rating !== undefined) {
+    //   if (queryParams.length > 0) {
+    //     query += ",";
+    //   }
+    //   query += " rating = ?";
+    //   queryParams.push(rating);
+    // }
     if (numOfCopies !== undefined) {
       if (queryParams.length > 0) {
         query += ",";
@@ -349,9 +349,9 @@ app.put("/snippet/stats/:snippetId", async (request, response) => {
     queryParams.push(snippetId);
 
     await connection.query(query, queryParams);
-    const updatedSnippet = await connection.query("SELECT rating, numOfViews FROM CodeSnippets WHERE id = ?", [snippetId]);
+    const updatedSnippet = await connection.query("SELECT numOfViews FROM CodeSnippets WHERE id = ?", [snippetId]);
     connection.release();
-    response.status(200).json({ message: "Snippet stats updated successfully", numOfViews: (updatedSnippet[0])[0].numOfViews, numOfUpvotes: (updatedSnippet[0])[0].rating});
+    response.status(200).json({ message: "Snippet stats updated successfully", numOfViews: (updatedSnippet[0])[0].numOfViews});
   } catch (error) {
     console.error("Error updating snippet:", error);
     response
@@ -487,16 +487,18 @@ app.get("/analytics/top", async (req, res) => {
   }
 });
 
-app.get("/bookmark/:userId/:snippetId", async (request, response) => {
+app.get("/stats/:type/:userId/:snippetId", async (request, response) => {
   try {
     const connection = await pool.getConnection();
     const { userId, snippetId } = request.params;
-    const [result] = await connection.query(
-      `SELECT COUNT(*) > 0 AS is_bookmarked FROM Bookmarks WHERE user_id = ? AND snippet_id = ?`,
-      [userId, snippetId]
-    );
+    const table = request.params.type;
+    const countColumn = table === "Bookmarks" ? "bookmark_count" : "upvote_count";
+    const isColumn = table === "Bookmarks" ? "is_bookmarked" : "is_upvoted";
+    const [countResult] = await connection.query(`SELECT COUNT(*) AS ${countColumn} FROM ${table} WHERE snippet_id = ?`, [snippetId]);
+    const [userResult] = await connection.query(`SELECT COUNT(*) > 0 AS ${isColumn} FROM ${table} WHERE user_id = ? AND snippet_id = ?`, [userId, snippetId]);
     connection.release();
-    response.status(200).json(result);
+    console.log({[countColumn]: countResult[0][countColumn], [isColumn]: userResult[0][isColumn]});
+    response.status(200).json({[countColumn]: countResult[0][countColumn], [isColumn]: userResult[0][isColumn]});
   } catch (error) {
     console.error("Error executing SQL query:", error);
     response
@@ -505,20 +507,21 @@ app.get("/bookmark/:userId/:snippetId", async (request, response) => {
   }
 })
 
-app.post("/bookmark", async (request, response) => {
+app.post("/stats/:type", async (request, response) => {
   try {
     const connection = await pool.getConnection();
     const { userId, snippetId } = request.body;
-    const [result] = await connection.query("INSERT INTO Bookmarks (user_id, snippet_id) VALUES (?, ?)", [userId, snippetId]);
+    const table = request.params.type;
+    const [result] = await connection.query(`INSERT INTO ${table} (user_id, snippet_id) VALUES (?, ?)`, [userId, snippetId]);
     connection.release();
     if (result.affectedRows === 1) {
       response
         .status(201)
-        .json({ success: true, message: "Successfully added bookmark" });
+        .json({ success: true, message: "Successfully added stat" });
     } else {
       response
         .status(500)
-        .json({ success: false, message: "Failed to add bookmark" });
+        .json({ success: false, message: "Failed to add stat" });
     }
   } catch (error) {
     console.error("Error executing SQL query:", error);
@@ -528,20 +531,21 @@ app.post("/bookmark", async (request, response) => {
   }
 });
 
-app.delete("/bookmark", async (request, response) => {
+app.delete("/stats/:type", async (request, response) => {
   try {
     const connection = await pool.getConnection();
     const { userId, snippetId } = request.body;
-    const [result] = await connection.query("DELETE FROM Bookmarks WHERE user_id = ? AND snippet_id = ?", [userId, snippetId]);
+    const table = request.params.type;
+    const [result] = await connection.query(`DELETE FROM ${table} WHERE user_id = ? AND snippet_id = ?`, [userId, snippetId]);
     connection.release();
     if (result.affectedRows === 1) {
       response
         .status(201)
-        .json({ success: true, message: "Successfully deleted bookmark" });
+        .json({ success: true, message: "Successfully deleted stat" });
     } else {
       response
         .status(500)
-        .json({ success: false, message: "Failed to delete bookmark" });
+        .json({ success: false, message: "Failed to delete stat" });
     }
   } catch (error) {
     console.error("Error executing SQL query:", error);

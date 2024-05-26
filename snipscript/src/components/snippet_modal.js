@@ -1,6 +1,5 @@
 import CodeSnippet from "./code_snippet";
-import { useEffect, useState, useRef } from "react";
-import { Switch } from "@headlessui/react";
+import { useEffect, useState } from "react";
 import SnippetForm from "./snippet_card_form";
 
 export default function ViewSnippet ({ card, snippetTags, closeModal, updateCard }) {
@@ -9,7 +8,7 @@ export default function ViewSnippet ({ card, snippetTags, closeModal, updateCard
     const [isBookmarked, setBookmarked] = useState(false);
     const [isUpvoted, setIsUpvoted] = useState(false);
     const [numOfViews, setNumOfViews] = useState(card.numOfViews);
-    const [numOfUpvotes, setNumOfUpvotes] = useState(card.rating);
+    const [numOfUpvotes, setNumOfUpvotes] = useState(0);
     const [numOfBookmarked, setNumOfBookmarked] = useState(0);
 
     const userId = localStorage.getItem("Current user id");
@@ -21,80 +20,61 @@ export default function ViewSnippet ({ card, snippetTags, closeModal, updateCard
     useEffect(() => {
         if (!updateCard) {
             const newNumOfViews = numOfViews + 1;
-            handleUpdateStats(newNumOfViews, undefined);
+            handleUpdateViews(newNumOfViews);
         }
-        const fetchBookmarked = async () => {
-            try {
-              const response = await fetch(`http://localhost:3001/bookmark/${userId}/${card.id}`);
-              if (!response.ok) {
-                throw new Error('Network response was not ok');
-              }
-              const data = await response.json();
-              setBookmarked(data[0].is_bookmarked);
-            } catch (error) {
-              console.error('Error:', error);
-            }
-        };
-
-        const upvotedSnippets = JSON.parse(localStorage.getItem('upvotedSnippets')) || {};
-        setIsUpvoted(!!upvotedSnippets[card.id]);
-        fetchBookmarked();
+        fetchStats("Bookmarks");
+        fetchStats("UpvotedSnippets")
     }, [updateCard]);
 
     const handleEdit = () => {
         setIsEditing(true);
     }
 
-    const handleAddBookmark = () => {
-        fetch(`http://localhost:3001/bookmark`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ userId: userId, snippetId: card.id}),
-            })
-            .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            } else {
-                console.log('Successfully added bookmark');
-            }
-            })
-            .catch(error => {
-            console.error('Error:', error);
-        });
-    }
+    const fetchStats = async (type) => {
+      try {
+        const response = await fetch(`http://localhost:3001/stats/${type}/${userId}/${card.id}`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        if (type === "Bookmarks") {
+          setBookmarked(data.is_bookmarked);
+          setNumOfBookmarked(data.bookmark_count);
+        } else {
+          setIsUpvoted(data.is_upvoted);
+          setNumOfUpvotes(data.upvote_count);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
 
-    const handleDeleteBookmark = () => {
-        fetch(`http://localhost:3001/bookmark`, {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ userId: userId, snippetId: card.id}),
-            })
+    const handleAddOrDelete = (type, action) => {
+      const method = action === 'add' ? 'POST' : 'DELETE';
+      fetch(`http://localhost:3001/stats/${type}`, {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userId: userId, snippetId: card.id}),
+          })
           .then(response => {
-            if (!response.ok) {
-              throw new Error('Network response was not ok');
-            } else {
-              console.log('Successfully deleted bookmark');
-            }
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          } else {
+            fetchStats(type)
+            console.log('Successfully updated stat');
+          }
           })
           .catch(error => {
-            console.error('Error:', error);
-        });
+          console.error('Error:', error);
+      });
     }
 
-    const handleUpdateStats = async (numOfViews, numOfUpvotes) => {
+    const handleUpdateViews = async (numOfViews) => {
         const body = {};
     
-        if (numOfViews !== undefined) {
-          body.numOfViews = numOfViews;
-        }
-    
-        if (numOfUpvotes !== undefined) {
-          body.rating = numOfUpvotes;
-        }
+        body.numOfViews = numOfViews;
     
         if (Object.keys(body).length > 0) {
           try {
@@ -111,34 +91,13 @@ export default function ViewSnippet ({ card, snippetTags, closeModal, updateCard
             }
     
             const data = await response.json();
-            setNumOfUpvotes(data.numOfUpvotes);
             setNumOfViews(data.numOfViews);
-            console.log("NumOfViews", numOfViews);
             console.log('Snippet stats updated successfully');
           } catch (error) {
             console.error('Error:', error);
           }
         }
     };
-
-    const handleUpvote = () => {
-        const newIsUpvoted = !isUpvoted;
-        const newUpvotes = newIsUpvoted ? numOfUpvotes + 1 : numOfUpvotes - 1;
-        setIsUpvoted(newIsUpvoted);
-        handleUpdateStats(undefined, newUpvotes);
-    
-        const upvotedSnippets = JSON.parse(localStorage.getItem('upvotedSnippets')) || {};
-        if (newIsUpvoted) {
-            upvotedSnippets[card.id] = true;
-        } else {
-            delete upvotedSnippets[card.id];
-        }
-        localStorage.setItem('upvotedSnippets', JSON.stringify(upvotedSnippets));
-    };
-
-    function classNames(...classes) {
-        return classes.filter(Boolean).join(' ')
-    }
   
     return (
     <>
@@ -151,15 +110,15 @@ export default function ViewSnippet ({ card, snippetTags, closeModal, updateCard
                 ) : (
                     <>
                         <div className="text-black flex">
-                            <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" onClick={handleUpvote} className="cursor-pointer mr-4"><path d={getUpvoteSvg(isUpvoted)}/></svg>
-                            <p>{numOfUpvotes} upvotes</p>
+                            <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" onClick={() => {!isUpvoted ? handleAddOrDelete('UpvotedSnippets', 'add') : handleAddOrDelete('UpvotedSnippets', 'del')}} className="cursor-pointer mr-4"><path d={getUpvoteSvg(isUpvoted)}/></svg>
+                            <p>{numOfUpvotes} {numOfUpvotes > 1 || numOfUpvotes === 0 ? 'upvotes' : 'upvote'}</p>
                         </div>
-                        <div className="text-black">
+                        <div className="ml-8 text-black">
                             <p>{numOfViews} views</p>
                         </div>
-                        <div className="text-white flex">
-                            <p>{numOfBookmarked} bookmark</p>
-                            <svg fill="#000000" onClick={() => {setBookmarked(!isBookmarked); !isBookmarked ? handleAddBookmark() : handleDeleteBookmark()}} width="25px" height="25px" viewBox="0 0 24 24" id="bookmark" data-name="Line Color" xmlns="http://www.w3.org/2000/svg" class="icon line-color" className="cursor-pointer ml-4"><path id="primary" d="M12,17,5,21V4A1,1,0,0,1,6,3H18a1,1,0,0,1,1,1V21Z"
+                        <div className="flex">
+                            <p>{numOfBookmarked} {numOfBookmarked > 1 || numOfBookmarked === 0 ? 'bookmarked' : 'bookmark'}</p>
+                            <svg fill="#000000" onClick={() => {!isBookmarked ? handleAddOrDelete('Bookmarks', 'add') : handleAddOrDelete('Bookmarks', 'del')}} width="25px" height="25px" viewBox="0 0 24 24" id="bookmark" data-name="Line Color" xmlns="http://www.w3.org/2000/svg" class="icon line-color" className="cursor-pointer ml-4"><path id="primary" d="M12,17,5,21V4A1,1,0,0,1,6,3H18a1,1,0,0,1,1,1V21Z"
                                 style={{
                                 fill: isBookmarked ? "#000000" : "none",
                                 stroke: "rgb(0, 0, 0)",
@@ -187,7 +146,6 @@ export default function ViewSnippet ({ card, snippetTags, closeModal, updateCard
                 <div className='mt-2 w-full min-w-[25rem] bg-[#3a404d] rounded-md overflow-hidden'>
                     <div className='flex justify-between p-3 text-white text-xs items-center'>
                         <h1>{card.code_language}</h1>
-                        {/* <LanguageSelector setLanguage={setLanguage} defaultLanguage={language} /> */}
                         <button className='py-1 inline-flex items-center gap-1' onClick={() => {setTimeout(() => {navigator.clipboard.writeText(card.code_content)}, 0)}}>
                             <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-5-4v4h4V3h-4Z"/>
