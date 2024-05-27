@@ -24,8 +24,8 @@ export default function EmptyState({ updateBoards }) {
                 <BoardForm closeModal={() => setIsModalOpen(false)} updateBoards={updateBoards} />
             ) : (
                 <div className="flex justify-center items-center fixed z-50 inset-0 left-0 -top-2">
-                    <div className="flex flex-col justify-center items-center bg-white h-1/6 w-1/6 rounded-2xl p-5 max-h-[calc(100vh - 100px] overflow-y-auto shadow-2xl">
-                        <h1 className='text-center mb-4'>Please login or create an account to upvote and bookmark snippets</h1>
+                    <div className="flex flex-col justify-center items-center bg-white h-1/6 w-2/6 rounded-2xl p-5 max-h-[calc(100vh - 100px] overflow-y-auto shadow-2xl">
+                        <h1 className='text-center mb-4'>Please login or create an account to create boards and add code snippets.</h1>
                         <div className="flex justify-between">
                             <button onClick={() => setIsModalOpen(false)} className='rounded-full bg-gray-900 text-white px-6 py-2 mt-4 mr-4'>Close</button>
                             <button onClick={() => navigate('/authentication')} className='rounded-full bg-gray-900 text-white px-6 py-2 mt-4'>Login/Sign Up</button>
