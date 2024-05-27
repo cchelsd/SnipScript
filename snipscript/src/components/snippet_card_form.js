@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Switch } from '@headlessui/react'
 import CodeEditor from './code_editor';
 import LanguageSelector from './language_selector';
+import { useParams } from 'react-router-dom';
 
 export default function SnippetForm ({ card, snippetTags, closeModal, updateCard, isAdding, listId }) {
   const cardData = {
@@ -70,8 +71,10 @@ export default function SnippetForm ({ card, snippetTags, closeModal, updateCard
         }
     })
     .then(data => {
+      if (typeof updateCard === 'function') {
         updateCard();
-        closeModal();
+      }
+      closeModal();
     })
     .catch(error => {
         console.error('Error:', error);
@@ -80,7 +83,7 @@ export default function SnippetForm ({ card, snippetTags, closeModal, updateCard
 
 
   return (
-    <div id="add-snippet-modal" className="flex justify-center items-center bg-black fixed z-1 bg-opacity-60 inset-0 left-0 -top-2">
+    <div id="add-snippet-modal" className="flex justify-center items-center bg-black fixed z-30 bg-opacity-60 inset-0 left-0 -top-2">
       <div className="bg-white h-3/4 w-2/4 rounded-2xl p-5 max-h-[calc(100vh - 100px] overflow-y-auto">
         <h1 className='text-center'>{isAdding ? 'Add Snippet' : 'Edit Snippet'}</h1>
         <p className='text-sm mb-4'>* Required fields</p>

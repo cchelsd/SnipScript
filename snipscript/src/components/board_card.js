@@ -8,7 +8,7 @@ export default function BoardCard({ board, snippets }) {
     }, []);
 
     return (
-        <Link to={`/board/${encodeURIComponent(board.board_name)}/${board.id}`} className="relative bg-white border rounded-lg shadow-md transform transition duration-500 hover:scale-105">
+        <Link to={`/board/${encodeURIComponent(board.board_name)}/${board.id}`} className="relative bg-white border rounded-lg shadow-md transform transition duration-500 hover:scale-105 z-0">
             <div className="relative bg-white border rounded-lg shadow-md transform transition duration-500 hover:scale-105">
                 <div className="p-2 flex justify-center">
                     <div className='rounded-md w-full h-48' style={{backgroundColor: board.color, ...(board.color === '#FFFFFF' ? {outline: `1px solid #000000`} : {})}}></div>

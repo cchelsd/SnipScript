@@ -21,6 +21,10 @@ export default function SnippetCard({ snippet, isUsers, isRecent }) {
     fetchTags();
   }, [snippet]);
 
+  const updateCard = () => {
+    
+  }
+
   const formatDate = (date) => {
     const newDate = new Date(date);
     const year = newDate.getFullYear();
