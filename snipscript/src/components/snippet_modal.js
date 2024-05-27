@@ -41,7 +41,7 @@ export default function ViewSnippet ({ card, snippetTags, closeModal, updateCard
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        if (type === "Bookmarks") {
+        if (type === "bookmark") {
           setBookmarked(data.is_bookmarked);
           setNumOfBookmarked(data.bookmark_count);
         } else {
@@ -142,7 +142,7 @@ export default function ViewSnippet ({ card, snippetTags, closeModal, updateCard
                 ) : (
                     <>
                         <div className="text-black flex">
-                            <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" onClick={() => {!isUpvoted ? handleAddOrDelete('UpvotedSnippets', 'add') : handleAddOrDelete('UpvotedSnippets', 'del')}} className="cursor-pointer mr-4"><path d={getUpvoteSvg(isUpvoted)}/></svg>
+                            <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" onClick={() => {!isUpvoted ? handleAddOrDelete('upvoted_snippet', 'add') : handleAddOrDelete('upvoted_snipept', 'del')}} className="cursor-pointer mr-4"><path d={getUpvoteSvg(isUpvoted)}/></svg>
                             <p>{numOfUpvotes} {numOfUpvotes > 1 || numOfUpvotes === 0 ? 'upvotes' : 'upvote'}</p>
                         </div>
                         <div className="ml-8 text-black">
@@ -150,7 +150,7 @@ export default function ViewSnippet ({ card, snippetTags, closeModal, updateCard
                         </div>
                         <div className="flex">
                             <p>{numOfBookmarked} {numOfBookmarked > 1 || numOfBookmarked === 0 ? 'bookmarked' : 'bookmark'}</p>
-                            <svg fill="#000000" onClick={() => {!isBookmarked ? handleAddOrDelete('Bookmarks', 'add') : handleAddOrDelete('Bookmarks', 'del')}} width="25px" height="25px" viewBox="0 0 24 24" id="bookmark" data-name="Line Color" xmlns="http://www.w3.org/2000/svg" class="icon line-color" className="cursor-pointer ml-4"><path id="primary" d="M12,17,5,21V4A1,1,0,0,1,6,3H18a1,1,0,0,1,1,1V21Z"
+                            <svg fill="#000000" onClick={() => {!isBookmarked ? handleAddOrDelete('bookmark', 'add') : handleAddOrDelete('bookmark', 'del')}} width="25px" height="25px" viewBox="0 0 24 24" id="bookmark" data-name="Line Color" xmlns="http://www.w3.org/2000/svg" class="icon line-color" className="cursor-pointer ml-4"><path id="primary" d="M12,17,5,21V4A1,1,0,0,1,6,3H18a1,1,0,0,1,1,1V21Z"
                                 style={{
                                 fill: isBookmarked ? "#000000" : "none",
                                 stroke: "rgb(0, 0, 0)",

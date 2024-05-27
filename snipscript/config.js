@@ -53,7 +53,7 @@ const comparePassword = async (password, hash) => {
  *
  **********************************************/
 
-// ------------- Board and Lists ------------- //
+// ------------- Boards and Lists ------------- //
 
 // Query 6 of Phase III: Retrieves all the boards of a user and the number of snippets in each board.
 app.get("/boards/:userId", async (request, response) => {
@@ -62,8 +62,8 @@ app.get("/boards/:userId", async (request, response) => {
     const userId = request.params.userId;
     const [rows] = await connection.query(
       "SELECT B.*, COUNT(CS.id) AS num_of_snippets " +
-        "FROM Boards B JOIN Users U ON U.id = B.user_id LEFT JOIN Lists L ON B.id = L.board_id " +
-        "LEFT JOIN CodeSnippets CS ON L.id = CS.list_id WHERE U.id = ? GROUP BY B.id ORDER BY B.board_name;",
+        "FROM board B JOIN user U ON U.id = B.user_id LEFT JOIN list L ON B.id = L.board_id " +
+        "LEFT JOIN code_snippet CS ON L.id = CS.list_id WHERE U.id = ? GROUP BY B.id ORDER BY B.board_name;",
       [userId]
     );
     connection.release();
@@ -82,7 +82,7 @@ app.post("/boards/add", async (request, response) => {
     const connection = await pool.getConnection();
     const { userId, boardName, color} = request.body;
     const [result] = await connection.query(
-      "INSERT INTO Boards (user_id, board_name, color) VALUES (?, ?, ?)",
+      "INSERT INTO board (user_id, board_name, color) VALUES (?, ?, ?)",
       [userId, boardName, color]
     );
     connection.release();
@@ -108,7 +108,7 @@ app.delete("/boards/:boardId", async (request, response) => {
   try {
     const connection = await pool.getConnection();
     const boardId = request.params.boardId;
-    const [result] = await connection.query("DELETE FROM Boards WHERE id = ?", [
+    const [result] = await connection.query("DELETE FROM board WHERE id = ?", [
       boardId,
     ]);
     connection.release();
@@ -136,9 +136,9 @@ app.get("/lists/:boardId", async (request, response) => {
     const connection = await pool.getConnection();
     const boardId = request.params.boardId;
     const [result] = await connection.query(
-      "SELECT L.list_name, L.id, CS.id AS snippet_id FROM Users U " +
-        "JOIN Boards B ON U.id = B.user_id JOIN Lists L ON B.id = L.board_id " +
-        "LEFT JOIN CodeSnippets CS ON L.id = CS.list_id WHERE B.id = ?",
+      "SELECT L.list_name, L.id, CS.id AS snippet_id FROM user U " +
+        "JOIN board B ON U.id = B.user_id JOIN list L ON B.id = L.board_id " +
+        "LEFT JOIN code_snippet CS ON L.id = CS.list_id WHERE B.id = ?",
       [boardId]
     );
     connection.release();
@@ -157,7 +157,7 @@ app.post("/lists", async (request, response) => {
     const connection = await pool.getConnection();
     const { userId, boardId, listName } = request.body;
     const [result] = await connection.query(
-      "INSERT INTO Lists (user_id, board_id, list_name)" + "VALUES (?, ?, ?)",
+      "INSERT INTO list (user_id, board_id, list_name)" + "VALUES (?, ?, ?)",
       [userId, boardId, listName]
     );
     connection.release();
@@ -188,7 +188,7 @@ app.post("/snippet", async (request, response) => {
       request.body;
     await connection.beginTransaction();
     const [result] = await connection.query(
-      "INSERT INTO CodeSnippets (user_id, list_id, title, snippet_description, code_content, code_language)" +
+      "INSERT INTO code_snippet (user_id, list_id, title, snippet_description, code_content, code_language)" +
         "VALUES (?, ?, ?, ?, ?, ?)",
       [userId, listId, title, description, code, language]
     );
@@ -198,7 +198,7 @@ app.post("/snippet", async (request, response) => {
     if (tags && tags.length > 0) {
       const tagQueries = tags.map((tag) =>
         connection.query(
-          "INSERT INTO SnippetTags (snippet_id, tag) VALUES (?, ?)",
+          "INSERT INTO snippet_tag (snippet_id, tag) VALUES (?, ?)",
           [snippetId, tag]
         )
       );
@@ -229,7 +229,7 @@ app.get("/snippet/tags/:snippetId", async (request, response) => {
     const connection = await pool.getConnection();
     const snippetId = request.params.snippetId;
     const [result] = await connection.query(
-      "SELECT tag FROM SnippetTags WHERE snippet_id = ?",
+      "SELECT tag FROM snippet_tag WHERE snippet_id = ?",
       [snippetId]
     );
     connection.release();
@@ -249,7 +249,7 @@ app.get("/snippet/:snippetId", async (request, response) => {
     const connection = await pool.getConnection();
     const snippetId = request.params.snippetId;
     const [result] = await connection.query(
-      "SELECT * FROM CodeSnippets WHERE id = ?",
+      "SELECT * FROM code_snippet WHERE id = ?",
       [snippetId]
     );
     connection.release();
@@ -271,17 +271,17 @@ app.put("/snippet/:snippetId", async (request, response) => {
     await connection.beginTransaction();
     // Update the snippet
     await connection.query(
-      "UPDATE CodeSnippets SET title = ?, snippet_description = ?, code_content = ?, privacy = ? WHERE id = ?",
+      "UPDATE code_snippet SET title = ?, snippet_description = ?, code_content = ?, privacy = ? WHERE id = ?",
       [title, description, code, privacy, id]
     );
     // Delete existing tags
-    await connection.query("DELETE FROM SnippetTags WHERE snippet_id = ?", [
+    await connection.query("DELETE FROM snippet_tag WHERE snippet_id = ?", [
       id,
     ]);
     // Insert new tags
     const tagQueries = tags.map((tag) =>
       connection.query(
-        "INSERT INTO SnippetTags (snippet_id, tag) VALUES (?, ?)",
+        "INSERT INTO snippet_tag (snippet_id, tag) VALUES (?, ?)",
         [id, tag]
       )
     );
@@ -303,7 +303,7 @@ app.put("/snippet/drag/:listId", async (request, response) => {
     const connection = await pool.getConnection();
     const listId = request.params.listId;
     const snippetId = request.body.snippetId;
-    connection.query("UPDATE CodeSnippets set list_id = ? WHERE id = ?", [
+    connection.query("UPDATE code_snippet set list_id = ? WHERE id = ?", [
       listId,
       snippetId,
     ]);
@@ -324,7 +324,7 @@ app.put("/snippet/stats/:snippetId", async (request, response) => {
     const { numOfViews, numOfCopies } = request.body;
 
     // Build the query dynamically based on provided fields
-    let query = "UPDATE CodeSnippets SET";
+    let query = "UPDATE code_snippet SET";
     let queryParams = [];
     if (numOfViews !== undefined) {
       query += " numOfViews = ?";
@@ -341,7 +341,7 @@ app.put("/snippet/stats/:snippetId", async (request, response) => {
     queryParams.push(snippetId);
 
     await connection.query(query, queryParams);
-    const updatedSnippet = await connection.query("SELECT numOfViews FROM CodeSnippets WHERE id = ?", [snippetId]);
+    const updatedSnippet = await connection.query("SELECT numOfViews FROM code_snippet WHERE id = ?", [snippetId]);
     connection.release();
     response.status(200).json({ message: "Snippet stats updated successfully", numOfViews: (updatedSnippet[0])[0].numOfViews});
   } catch (error) {
@@ -358,9 +358,9 @@ app.get("/explore", async (request, response) => {
     const connection = await pool.getConnection();
     const [result] = await connection.query(
       `SELECT CS.*, U.username, GROUP_CONCAT(ST.tag) AS tags
-        FROM CodeSnippets CS
-        JOIN Users U ON CS.user_id = U.id
-        JOIN SnippetTags ST ON CS.id = ST.snippet_id
+        FROM code_snippet CS
+        JOIN user U ON CS.user_id = U.id
+        JOIN snippet_tag ST ON CS.id = ST.snippet_id
         WHERE CS.privacy = 0
         GROUP BY CS.id;`
     );
@@ -379,10 +379,10 @@ app.get("/explore/trending", async (request, response) => {
     const connection = await pool.getConnection();
     const [result] = await connection.query(
       `SELECT CS.*, U.username, GROUP_CONCAT(ST.tag) AS tags, (CS.numOfViews + COUNT(US.snippet_id)) AS totalScore
-        FROM CodeSnippets CS
-        JOIN Users U ON CS.user_id = U.id
-        JOIN SnippetTags ST ON CS.id = ST.snippet_id
-        JOIN UpvotedSnippets US ON CS.id = US.snippet_id
+        FROM code_snippet CS
+        JOIN user U ON CS.user_id = U.id
+        JOIN snippet_tag ST ON CS.id = ST.snippet_id
+        JOIN upvoted_snippet US ON CS.id = US.snippet_id
         WHERE CS.privacy = 0 AND MONTH(CS.date_posted) = MONTH(CURRENT_DATE()) AND YEAR(CS.date_posted) = YEAR(CURRENT_DATE())
         GROUP BY CS.id ORDER BY totalScore DESC
         LIMIT 10;`
@@ -403,8 +403,8 @@ app.get("/explore/popular-tags", async (req, res) => {
     const connection = await pool.getConnection();
     const [result] = await connection.query(
       `SELECT ST.tag, COUNT(ST.tag) AS tag_count
-             FROM CodeSnippets CS
-             JOIN SnippetTags ST ON CS.id = ST.snippet_id
+             FROM code_snippet CS
+             JOIN snippet_tag ST ON CS.id = ST.snippet_id
              WHERE CS.privacy = 0
              GROUP BY ST.tag
              ORDER BY tag_count DESC
@@ -428,9 +428,9 @@ app.get("/explore/search", async (req, res) => {
 
     const [result] = await connection.query(
       `SELECT CS.*, U.username, GROUP_CONCAT(ST.tag) AS tags
-             FROM CodeSnippets CS
-             JOIN Users U ON CS.user_id = U.id
-             LEFT JOIN SnippetTags ST ON CS.id = ST.snippet_id
+             FROM code_snippet CS
+             JOIN user U ON CS.user_id = U.id
+             LEFT JOIN snippet_tag ST ON CS.id = ST.snippet_id
              WHERE CS.privacy = 0
              AND (CS.title LIKE ? OR CS.snippet_description LIKE ? OR ST.tag LIKE ?)
              GROUP BY CS.id;`,
@@ -452,8 +452,8 @@ app.get("/analytics/user/:userId", async (request, response) => {
     const userId = request.params.userId;
     const [result] = await connection.query(
       `SELECT SUM(CS.numOfViews) AS numOfViews, SUM(CS.numOfCopies) AS numOfCopies, COUNT(US.user_id) AS numOfUpvotes
-      FROM CodeSnippets CS
-      LEFT JOIN UpvotedSnippets US ON CS.id = US.snippet_id
+      FROM code_snippet CS
+      LEFT JOIN upvoted_snippet US ON CS.id = US.snippet_id
       WHERE CS.user_id = ?`, [userId]
     );
     connection.release();
@@ -475,8 +475,8 @@ app.get("/analytics/recent", async (req, res) => {
 
     const [result] = await connection.query(
       `SELECT CS.*
-       FROM CodeSnippets CS
-       JOIN Users U ON U.id = CS.user_id
+       FROM code_snippet CS
+       JOIN user U ON U.id = CS.user_id
        WHERE CS.user_id = ?
        ORDER BY CS.date_posted DESC
        LIMIT 5;`,
@@ -497,14 +497,13 @@ app.get("/analytics/top/:userId", async (req, res) => {
   try {
     const connection = await pool.getConnection();
     const userId = req.params.userId;
-
     const [result] = await connection.query(
       `SELECT cs.*, COALESCE(b.Total_Bookmarks, 0) AS Total_Bookmarks, 
               cs.numOfViews + cs.numOfCopies + COALESCE(b.Total_Bookmarks, 0) AS Total_Stats
-       FROM CodeSnippets cs
+       FROM code_snippet cs
        LEFT JOIN (
            SELECT snippet_id, COUNT(*) AS Total_Bookmarks
-           FROM Bookmarks
+           FROM bookmark
            GROUP BY snippet_id
        ) b ON cs.id = b.snippet_id
        WHERE cs.user_id = ? AND cs.privacy = 0 
@@ -527,8 +526,8 @@ app.get("/stats/:type/:userId/:snippetId", async (request, response) => {
     const connection = await pool.getConnection();
     const { userId, snippetId } = request.params;
     const table = request.params.type;
-    const countColumn = table === "Bookmarks" ? "bookmark_count" : "upvote_count";
-    const isColumn = table === "Bookmarks" ? "is_bookmarked" : "is_upvoted";
+    const countColumn = table === "bookmark" ? "bookmark_count" : "upvote_count";
+    const isColumn = table === "bookmark" ? "is_bookmarked" : "is_upvoted";
     const [countResult] = await connection.query(`SELECT COUNT(*) AS ${countColumn} FROM ${table} WHERE snippet_id = ?`, [snippetId]);
     const [userResult] = await connection.query(`SELECT COUNT(*) > 0 AS ${isColumn} FROM ${table} WHERE user_id = ? AND snippet_id = ?`, [userId, snippetId]);
     connection.release();
@@ -595,9 +594,9 @@ app.get("/bookmarks/:userId", async (request, response) => {
     const userId = request.params.userId;
     const [result] = await connection.query(
       `SELECT B.snippet_id, CS.*, U.username
-      FROM Bookmarks B 
-      JOIN CodeSnippets CS ON B.snippet_id = CS.id 
-      JOIN Users U ON CS.user_id = U.id
+      FROM bookmark B 
+      JOIN code_snippet CS ON B.snippet_id = CS.id 
+      JOIN user U ON CS.user_id = U.id
       WHERE B.user_id = ?`, [userId]);
     connection.release();
     response.status(200).json(result);
@@ -624,7 +623,7 @@ app.post("/login", async (request, response) => {
     const connection = await pool.getConnection();
     // Check if the user exists with the provided username and password
     const [rows] = await connection.query(
-      "SELECT * FROM Users WHERE username = ?",
+      "SELECT * FROM user WHERE username = ?",
       [username]
     );
     connection.release();
@@ -663,7 +662,7 @@ app.post("/register", async (request, response) => {
     const connection = await pool.getConnection();
     // Check if the user already exists
     const [existingUsers] = await connection.query(
-      "SELECT * FROM Users WHERE username = ?",
+      "SELECT * FROM user WHERE username = ?",
       [username]
     );
     if (existingUsers.length > 0) {
@@ -679,7 +678,7 @@ app.post("/register", async (request, response) => {
     // Insert the new user into the database
     const hashedPassword = await hashPassword(password);
     const [result] = await connection.query(
-      "INSERT INTO Users (username, password_hash) VALUES (?, ?)",
+      "INSERT INTO user (username, password_hash) VALUES (?, ?)",
       [username, hashedPassword]
     );
 
