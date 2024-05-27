@@ -5,7 +5,7 @@ export default function Explore() {
   const [snippets, setSnippets] = useState([]);
   const [allSnippets, setAllSnippets] = useState([]); // Store all snippets for filtering
   const [tags, setTags] = useState([]);
-  const [selectedTag, setSelectedTag] = useState("");
+  const [selectedTag, setSelectedTag] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
   const fetchSnippets = () => {
@@ -31,7 +31,7 @@ export default function Explore() {
   };
 
   const fetchTags = () => {
-    fetch(`http://localhost:3001/popular-tags`, {
+    fetch(`http://localhost:3001/explore/popular-tags`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -53,7 +53,7 @@ export default function Explore() {
 
   const handleTagClick = (tag) => {
     setSelectedTag(tag);
-    if (tag === "") {
+    if (tag === "all") {
       setSnippets(allSnippets); // Show all snippets if no tag is selected
     } else {
       const filteredSnippets = allSnippets.filter((snippet) =>
@@ -64,7 +64,7 @@ export default function Explore() {
   };
 
   const handleSearch = (query) => {
-    fetch(`http://localhost:3001/search?query=${query}`, {
+    fetch(`http://localhost:3001/explore/search?query=${query}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -83,6 +83,28 @@ export default function Explore() {
         console.error("Error:", error);
       });
   };
+
+  const fetchTrendingSnippets = () => {
+    setSelectedTag("trending")
+    fetch(`http://localhost:3001/explore/trending`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setSnippets(data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }
 
   useEffect(() => {
     fetchSnippets();
@@ -126,11 +148,11 @@ export default function Explore() {
       <div className="flex flex-wrap justify-center mt-4">
         <button
           className={`m-2 px-4 py-1 rounded-full hover:bg-violet-800 hover:text-white ${
-            selectedTag === ""
+            selectedTag === "all"
               ? "bg-violet-800 text-white border border-2 border-violet-200"
               : "bg-violet-200 text-violet-800"
           }`}
-          onClick={() => handleTagClick("")}
+          onClick={() => handleTagClick("all")}
         >
           All
         </button>
@@ -147,6 +169,12 @@ export default function Explore() {
             {tag.tag}
           </button>
         ))}
+        <button className={`m-2 ml-12 px-4 py-1 rounded-full hover:bg-violet-800 hover:text-white ${
+            selectedTag === "trending"
+              ? "bg-violet-800 text-white border border-2 border-violet-200"
+              : "bg-violet-200 text-violet-800"
+          }`}
+          onClick={() => fetchTrendingSnippets()}>Trending Snippets</button>
       </div>
       <div className="flex items-center justify-center w-full overflow-auto bg-transparent">
         <div className="grid grid-cols-1 gap-5 p-4 mx-12 mt-12 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 md:p-2 xl:p-5">

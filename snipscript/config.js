@@ -331,13 +331,6 @@ app.put("/snippet/stats/:snippetId", async (request, response) => {
       query += " numOfViews = ?";
       queryParams.push(numOfViews);
     }
-    // if (rating !== undefined) {
-    //   if (queryParams.length > 0) {
-    //     query += ",";
-    //   }
-    //   query += " rating = ?";
-    //   queryParams.push(rating);
-    // }
     if (numOfCopies !== undefined) {
       if (queryParams.length > 0) {
         query += ",";
@@ -357,6 +350,26 @@ app.put("/snippet/stats/:snippetId", async (request, response) => {
     response
       .status(400)
       .json({ Error: "Error updating the snippet. Please check." });
+  }
+});
+
+app.get("/stats/user/:userId", async (request, response) => {
+  try {
+    const connection = await pool.getConnection();
+    const userId = request.params.userId;
+    const [result] = await connection.query(
+      `SELECT SUM(CS.numOfViews) AS numOfViews, SUM(CS.numOfCopies) AS numOfCopies, COUNT(US.user_id) AS numOfUpvotes
+      FROM CodeSnippets CS
+      LEFT JOIN UpvotedSnippets US ON CS.user_id = US.user_id
+      WHERE CS.user_id = ?`, [userId]
+    );
+    connection.release();
+    response.status(200).json(result);
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    response
+      .status(400)
+      .json({ Error: "Error in the SQL statement. Please check." });
   }
 });
 
@@ -382,8 +395,31 @@ app.get("/explore", async (request, response) => {
   }
 });
 
+app.get("/explore/trending", async (request, response) => {
+  try {
+    const connection = await pool.getConnection();
+    const [result] = await connection.query(
+      `SELECT CS.*, U.username, GROUP_CONCAT(ST.tag) AS tags, (CS.numOfViews + COUNT(US.snippet_id)) AS totalScore
+        FROM CodeSnippets CS
+        JOIN Users U ON CS.user_id = U.id
+        JOIN SnippetTags ST ON CS.id = ST.snippet_id
+        JOIN UpvotedSnippets US ON CS.id = US.snippet_id
+        WHERE CS.privacy = 0 AND MONTH(CS.date_posted) = MONTH(CURRENT_DATE()) AND YEAR(CS.date_posted) = YEAR(CURRENT_DATE())
+        GROUP BY CS.id ORDER BY totalScore DESC
+        LIMIT 10;`
+    );
+    connection.release();
+    response.status(200).json(result);
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    response
+      .status(400)
+      .json({ Error: "Error in the SQL statement. Please check." });
+  }
+});
+
 // Query 2: Retrieve most popular tags among all public code snippets.
-app.get("/popular-tags", async (req, res) => {
+app.get("/explore/popular-tags", async (req, res) => {
   try {
     const connection = await pool.getConnection();
     const [result] = await connection.query(
@@ -406,7 +442,7 @@ app.get("/popular-tags", async (req, res) => {
 });
 
 // Query 4: Search for code snippets based on title, description, and tags for the explore page.
-app.get("/search", async (req, res) => {
+app.get("/explore/search", async (req, res) => {
   try {
     const connection = await pool.getConnection();
     const { query } = req.query;
@@ -457,14 +493,13 @@ app.get("/analytics/recent", async (req, res) => {
 });
 
 // Query 8: Retrieve a user's top 5 most popular snippets based on the collective stats of views, copies, and bookmarks.
-app.get("/analytics/top", async (req, res) => {
+app.get("/analytics/top/:userId", async (req, res) => {
   try {
     const connection = await pool.getConnection();
-    const userId = req.query.user_id;
+    const userId = req.params.userId;
 
     const [result] = await connection.query(
-      `SELECT cs.id, cs.title, cs.snippet_description, cs.code_content, cs.code_language, 
-              cs.numOfViews, cs.numOfCopies, COALESCE(b.Total_Bookmarks, 0) AS Total_Bookmarks, 
+      `SELECT cs.*, COALESCE(b.Total_Bookmarks, 0) AS Total_Bookmarks, 
               cs.numOfViews + cs.numOfCopies + COALESCE(b.Total_Bookmarks, 0) AS Total_Stats
        FROM CodeSnippets cs
        LEFT JOIN (
@@ -555,8 +590,30 @@ app.delete("/stats/:type", async (request, response) => {
   }
 });
 
+app.get("/bookmarks/:userId", async (request, response) => {
+  try {
+    const connection = await pool.getConnection();
+    const userId = request.params.userId;
+    const [result] = await connection.query(
+      `SELECT B.snippet_id, CS.*, U.username
+      FROM Bookmarks B 
+      JOIN CodeSnippets CS ON B.snippet_id = CS.id 
+      JOIN Users U ON CS.user_id = U.id
+      WHERE B.user_id = ?`, [userId]);
+    connection.release();
+    response.status(200).json(result);
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    response
+      .status(400)
+      .json({ Error: "Error in the SQL statement. Please check." });
+  }
+});
+
 /*
- * Query that will update rating, numOfViews, and numOfCopies in CodeSnippets.
+ * Query that will get users collective views, upvotes, copies.
+
+
  */
 
 // ------------- Authentication ------------- //

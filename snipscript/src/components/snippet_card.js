@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import ViewSnippet from "./snippet_modal";
 
-export default function SnippetCard({ snippet, isUsers }) {
-
+export default function SnippetCard({ snippet, isUsers, isRecent }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [snippetTags, setSnippetTags] = useState(null);
-  const [views, setViews] = useState(snippet.numOfViews);
 
   useEffect(() => {
     const fetchTags = async () => {
@@ -23,10 +21,21 @@ export default function SnippetCard({ snippet, isUsers }) {
     fetchTags();
   }, [snippet]);
 
+  const formatDate = (date) => {
+    const newDate = new Date(date);
+    const year = newDate.getFullYear();
+    const month = String(newDate.getMonth() + 1).padStart(2, '0');
+    const day = String(newDate.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
   return (
     <>
       <div className="bg-white p-4 rounded-xl shadow-lg mb-4 cursor-pointer" onClick={() => setIsModalOpen(true)}>
           <p className="text-sm text-gray-500 mb-2">{snippet.username}</p>
+          {isRecent && (
+            <p className="text-sm text-gray-500 mb-2">{formatDate(snippet.date_posted)}</p>
+          )}
           <h4 className="text-xl font-semibold mb-2 truncate">{snippet.title}</h4>
           <p className="text-sm text-gray-600 mb-2" style={{ overflow: 'hidden', textOverflow: 'ellipsis', 
             display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{snippet.snippet_description}</p>

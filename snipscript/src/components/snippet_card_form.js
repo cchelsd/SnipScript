@@ -106,7 +106,7 @@ export default function SnippetForm ({ card, snippetTags, closeModal, updateCard
           placeholder="Enter tags (comma separated, one word per tag)"
         />
         <p className='ml-px block pl-4 text-sm font-medium leading-6 text-gray-900 mt-5'>Code</p>
-        <div className='mt-2 max-w-2xl min-w-[25rem] bg-[#3a404d] rounded-md overflow-hidden'>
+        <div className='mt-2 w-full min-w-[25rem] bg-[#3a404d] rounded-md overflow-hidden'>
           <div className='flex p-3 text-white text-xs items-center'>
             <LanguageSelector onChange={(value) => setLanguage(value)} setLanguage={setLanguage} defaultLanguage={language} />
             {/* <button className='py-1 inline-flex items-center gap-1' onClick={() => {setTimeout(() => {navigator.clipboard.writeText(codeString)}, 0)}}>Copy code</button> */}

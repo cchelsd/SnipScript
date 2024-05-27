@@ -1,16 +1,16 @@
 import { useState, useEffect } from "react";
+import SnippetCard from "../components/snippet_card";
 
 export default function Analytics() {
   const [numOfViews, setNumOfViews] = useState(0);
   const [numOfCopies, setNumOfCopies] = useState(0);
   const [numOfUpvotes, setNumOfUpvotes] = useState(0);
   const [topSnippets, setTopSnippets] = useState([]);
-  const [recentSnippets, setRecentSnippets] = useState([]);
   const user = localStorage.getItem("Current user id");
 
   const fetchTopSnippets = () => {
     if (user) {
-      fetch(`http://localhost:3001/analytics/top?user_id=${user}`, {
+      fetch(`http://localhost:3001/analytics/top/${user}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -24,7 +24,6 @@ export default function Analytics() {
         })
         .then((data) => {
           setTopSnippets(data);
-          console.log("Top Snippets Data:", data);
         })
         .catch((error) => {
           console.error("Error fetching top snippets:", error);
@@ -32,9 +31,9 @@ export default function Analytics() {
     }
   };
 
-  const fetchRecentSnippets = () => {
+  const fetchStats = () => {
     if (user) {
-      fetch(`http://localhost:3001/analytics/recent?user_id=${user}`, {
+      fetch(`http://localhost:3001/stats/user/${user}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -47,18 +46,20 @@ export default function Analytics() {
           return response.json();
         })
         .then((data) => {
-          setRecentSnippets(data);
-          console.log("Recent Snippets Data:", data);
+          setNumOfViews(data[0].numOfViews);
+          setNumOfCopies(data[0].numOfCopies);
+          setNumOfUpvotes(data[0].numOfUpvotes);
         })
         .catch((error) => {
-          console.error("Error fetching recent snippets:", error);
+          console.error("Error fetching top snippets:", error);
         });
     }
   };
 
   useEffect(() => {
+    fetchStats();
     fetchTopSnippets();
-  }, []);
+  }, [user]);
 
   return (
     <div className="flex flex-col items-center h-full">
@@ -85,37 +86,17 @@ export default function Analytics() {
       <p className="mt-3 text-lg text-white">
         Based on collective stats of upvotes, views, and copies
       </p>
-      <ul className="flex flex-col items-center w-full mt-5 text-white">
+      <div className="flex items-center justify-center w-full overflow-auto bg-transparent">
         {topSnippets.length > 0 ? (
-          topSnippets.map((snippet) => (
-            <li
-              key={snippet.id}
-              className="w-3/4 p-5 mb-5 bg-gray-700 rounded-lg"
-            >
-              <h2 className="mb-2 text-2xl font-semibold">
-                Title: {snippet.title || "Title not listed."}
-              </h2>
-              <p className="mb-2 text-lg">
-                <span className="font-bold">Description: </span>
-                {snippet.snippet_description || "Description not listed."}
-              </p>
-              <p className="mb-2 text-sm">
-                <span className="font-bold">Language: </span>
-                {snippet.code_language || "Language not listed."}
-              </p>
-              <p className="mb-2 text-sm">
-                <span className="font-bold">Total Stats: </span>
-                {snippet.Total_Stats || "Stats not available."}
-              </p>
-              <pre className="p-2 bg-gray-800 rounded">
-                {snippet.code_content || "Code not listed."}
-              </pre>
-            </li>
-          ))
+          <div className="grid w-5/6 grid-cols-1 gap-5 p-4 mx-12 mt-12 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 md:p-2 xl:p-5">
+          {topSnippets.map((snippet) => (
+            <SnippetCard key={snippet.id} snippet={snippet} isUsers={true} />
+          ))}
+          </div>
         ) : (
-          <li className="text-lg">No top snippets available</li>
+          <p className="mt-5 text-lg text-white">No top snippets available. Make your snippets discoverable to others by setting them to public.</p>
         )}
-      </ul>
+      </div>
     </div>
   );
 }
