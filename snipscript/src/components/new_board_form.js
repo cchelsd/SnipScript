@@ -55,7 +55,7 @@ export default function BoardForm({closeModal, updateBoards}) {
 
     return (
         <div id="add-board-modal" className="flex justify-center items-center bg-black fixed z-10 bg-opacity-60 inset-0 left-0 -top-2">
-            <div className="bg-white h-1/4 w-2/4 rounded-2xl p-5 max-h-[calc(100vh - 100px] overflow-y-auto">
+            <div className="bg-white h-3/8 w-1/4 rounded-2xl p-5 max-h-[calc(100vh - 100px] overflow-y-auto">
                 <h1 className='text-center mb-4'>Create Board</h1>
                 <label htmlFor="name" className="ml-px block pl-4 text-sm font-medium leading-6 text-gray-900">Name</label>
                 <input
