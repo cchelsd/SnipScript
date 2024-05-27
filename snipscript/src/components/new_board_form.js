@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { SketchPicker } from "react-color"; 
 
 export default function BoardForm({closeModal, updateBoards}) {
@@ -7,7 +7,20 @@ export default function BoardForm({closeModal, updateBoards}) {
     const [color, setColor] = useState(null);
     const [displayColorPicker, setDisplayColorPicker] = useState(false);
     const [isEmpty, setIsEmpty] = useState(false);
+    const pickerRef = useRef(null);
     const user = localStorage.getItem("Current user id");
+
+    useEffect(() => {
+      const handleClickOutside = (e) => {
+        if (pickerRef.current && !pickerRef.current.contains(e.target)) {
+          setDisplayColorPicker(false);
+        }
+      }
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }, [pickerRef])
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -79,7 +92,7 @@ export default function BoardForm({closeModal, updateBoards}) {
                     <p className="ml-4">{color ? color : "#FFFFFF"}</p>
                   </div>
                   {displayColorPicker && (
-                    <div className="absolute z-20 mt-2">
+                    <div ref={pickerRef} className="absolute z-20 mt-2">
                       <SketchPicker color={'#FFFFFF'} onChange={handleColorChange} />
                     </div>
                   )}
