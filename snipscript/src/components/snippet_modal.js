@@ -26,8 +26,8 @@ export default function ViewSnippet ({ card, snippetTags, closeModal, updateCard
             handleUpdateStats(newNumOfViews);
         }
         console.log("Tags", snippetTags.tags)
-        fetchStats("Bookmarks");
-        fetchStats("UpvotedSnippets")
+        fetchStats("bookmark");
+        fetchStats("upvoted_snippet")
     }, [updateCard]);
 
     const handleEdit = () => {
