@@ -353,26 +353,6 @@ app.put("/snippet/stats/:snippetId", async (request, response) => {
   }
 });
 
-app.get("/stats/user/:userId", async (request, response) => {
-  try {
-    const connection = await pool.getConnection();
-    const userId = request.params.userId;
-    const [result] = await connection.query(
-      `SELECT SUM(CS.numOfViews) AS numOfViews, SUM(CS.numOfCopies) AS numOfCopies, COUNT(US.user_id) AS numOfUpvotes
-      FROM CodeSnippets CS
-      LEFT JOIN UpvotedSnippets US ON CS.user_id = US.user_id
-      WHERE CS.user_id = ?`, [userId]
-    );
-    connection.release();
-    response.status(200).json(result);
-  } catch (error) {
-    console.error("Error executing SQL query:", error);
-    response
-      .status(400)
-      .json({ Error: "Error in the SQL statement. Please check." });
-  }
-});
-
 // Query 9 of Phase III: Retrieves all public code snippets along with their tags and the username of the snippet owner.
 app.get("/explore", async (request, response) => {
   try {
@@ -462,6 +442,27 @@ app.get("/explore/search", async (req, res) => {
   } catch (error) {
     console.error("Error executing SQL query:", error);
     res
+      .status(400)
+      .json({ Error: "Error in the SQL statement. Please check." });
+  }
+});
+
+app.get("/analytics/user/:userId", async (request, response) => {
+  try {
+    const connection = await pool.getConnection();
+    const userId = request.params.userId;
+    const [result] = await connection.query(
+      `SELECT SUM(CS.numOfViews) AS numOfViews, SUM(CS.numOfCopies) AS numOfCopies, COUNT(US.user_id) AS numOfUpvotes
+      FROM CodeSnippets CS
+      LEFT JOIN UpvotedSnippets US ON CS.id = US.snippet_id
+      WHERE CS.user_id = ?`, [userId]
+    );
+    connection.release();
+    console.log(result)
+    response.status(200).json(result);
+  } catch (error) {
+    console.error("Error executing SQL query:", error);
+    response
       .status(400)
       .json({ Error: "Error in the SQL statement. Please check." });
   }

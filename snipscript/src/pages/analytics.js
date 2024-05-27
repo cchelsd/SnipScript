@@ -33,7 +33,7 @@ export default function Analytics() {
 
   const fetchStats = () => {
     if (user) {
-      fetch(`http://localhost:3001/stats/user/${user}`, {
+      fetch(`http://localhost:3001/analytics/user/${user}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

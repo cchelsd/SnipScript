@@ -10,6 +10,7 @@ export default function ViewSnippet ({ card, snippetTags, closeModal, updateCard
     const [numOfViews, setNumOfViews] = useState(card.numOfViews);
     const [numOfUpvotes, setNumOfUpvotes] = useState(0);
     const [numOfBookmarked, setNumOfBookmarked] = useState(0);
+    const [isCopied, setIsCopied] = useState(false);
 
     const userId = localStorage.getItem("Current user id");
 
@@ -20,7 +21,7 @@ export default function ViewSnippet ({ card, snippetTags, closeModal, updateCard
     useEffect(() => {
         if (!updateCard) {
             const newNumOfViews = numOfViews + 1;
-            handleUpdateViews(newNumOfViews);
+            handleUpdateStats(newNumOfViews);
         }
         fetchStats("Bookmarks");
         fetchStats("UpvotedSnippets")
@@ -71,11 +72,32 @@ export default function ViewSnippet ({ card, snippetTags, closeModal, updateCard
       });
     }
 
-    const handleUpdateViews = async (numOfViews) => {
+    const handleCopyClick = () => {
+      navigator.clipboard.writeText(card.code_content)
+        .then(() => {
+          setIsCopied(true);
+          handleUpdateStats(undefined, card.numOfCopies + 1)
+          setTimeout(() => {
+            setIsCopied(false);
+          }, 2000);
+        })
+        .catch(err => {
+          console.error('Failed to copy text: ', err);
+        });
+    };
+  
+
+    const handleUpdateStats = async (numOfViews, numOfCopies) => {
         const body = {};
     
-        body.numOfViews = numOfViews;
-    
+        if (numOfViews !== undefined) {
+          body.numOfViews = numOfViews;
+        }
+
+        if (numOfCopies !== undefined) {
+          body.numOfCopies = numOfCopies;
+        }
+        
         if (Object.keys(body).length > 0) {
           try {
             const response = await fetch(`http://localhost:3001/snippet/stats/${card.id}`, {
@@ -91,7 +113,10 @@ export default function ViewSnippet ({ card, snippetTags, closeModal, updateCard
             }
     
             const data = await response.json();
-            setNumOfViews(data.numOfViews);
+            if (numOfViews != undefined) {
+              setNumOfViews(data.numOfViews);
+            }
+            
             console.log('Snippet stats updated successfully');
           } catch (error) {
             console.error('Error:', error);
@@ -146,12 +171,16 @@ export default function ViewSnippet ({ card, snippetTags, closeModal, updateCard
                 <div className='mt-2 w-full min-w-[25rem] bg-[#3a404d] rounded-md overflow-hidden'>
                     <div className='flex justify-between p-3 text-white text-xs items-center'>
                         <h1>{card.code_language}</h1>
-                        <button className='py-1 inline-flex items-center gap-1' onClick={() => {setTimeout(() => {navigator.clipboard.writeText(card.code_content)}, 0)}}>
+                        {!isCopied ? (
+                          <button className='py-1 inline-flex items-center gap-1' onClick={handleCopyClick}>
                             <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                 <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-5-4v4h4V3h-4Z"/>
                             </svg>
                             Copy code
-                        </button>
+                          </button>
+                        ) : (
+                          <p className="my-2">Copied to clipboard</p>
+                        )} 
                     </div>
                     <CodeSnippet code={card.code_content} language={card.code_language} />
                 </div>
