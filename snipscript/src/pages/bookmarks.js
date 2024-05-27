@@ -37,7 +37,7 @@ export default function Bookmarks() {
   return (
     <div className="flex flex-col items-center h-full">
       <h1 className="mt-12 mb-12 text-4xl font-semibold text-center text-white">
-        YOUR BOOKMARKED SNIPPETS
+        BOOKMARKS
       </h1>
       <div className="flex items-center justify-center w-full overflow-auto bg-transparent">
         {bookmarks.length > 0 ? (

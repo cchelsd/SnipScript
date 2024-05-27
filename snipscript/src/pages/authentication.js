@@ -7,6 +7,7 @@ export default function Auth () {
     const [isLogin, setLogin] = useState(true);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [message, setMessage] = useState('');
     const navigate = useNavigate();
 
     const handleSubmit = (event) => {
@@ -24,9 +25,6 @@ export default function Auth () {
         }),
       })
       .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
         return response.json();
       })
       .then(data => {
@@ -40,11 +38,11 @@ export default function Auth () {
           navigate('/');
         } else {
           // Authentication failed
-          console.error(data.message);
+          setMessage(data.message);
         }
       })
       .catch(error => {
-        console.error('Error:', error);
+        // console.error('Error:', error);
       });
     };
 
@@ -99,7 +97,8 @@ export default function Auth () {
                     </div>
                 </div>
     
-                <div>
+                <div className="flex flex-col">
+                    <p className="text-sm text-red-500 mb-2">{message}</p>
                     <button
                     type="submit"
                     className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"

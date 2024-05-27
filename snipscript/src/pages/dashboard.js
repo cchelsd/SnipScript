@@ -70,14 +70,18 @@ return (
             </div>
             <div className="flex items-center justify-center w-full overflow-auto">
                 <div className="grid w-5/6 grid-cols-1 gap-5 p-4 mx-12 mt-12 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 md:p-2 xl:p-5">
-                    {recentSnippets.map(snippet => (
-                        <SnippetCard key={snippet.id} snippet={snippet} isUsers={true} isRecent={true}/>
-                    ))}
+                    {recentSnippets.length > 0 ? (
+                        recentSnippets.map(snippet => (
+                            <SnippetCard key={snippet.id} snippet={snippet} isUsers={true} isRecent={true}/>
+                        ))
+                    ) : (
+                        <p className="mt-5 text-lg text-white">No snippets added</p>
+                    )}
                 </div>
             </div>
         </div>
         <div className="flex w-11/12 mx-auto justify-center items-center z-0">
-            <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 p-4 md:p-2 xl:p-5">
+            <div className="grid w-11/12 gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 p-4 md:p-2 xl:p-5">
                 <EmptyState updateBoards={fetchBoards}/>
                 {boards.map(board => (
                     <BoardCard key={board.id} snippets={board.num_of_snippets} board={board} />

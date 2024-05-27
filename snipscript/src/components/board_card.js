@@ -2,13 +2,16 @@ import { useEffect } from "react"
 import { Link } from "react-router-dom"
 
 export default function BoardCard({ board, snippets }) {
+    useEffect(() => {
+        console.log("Board Color", board.color)
+        console.log("Board", board)
+    }, []);
+
     return (
         <Link to={`/board/${encodeURIComponent(board.board_name)}/${board.id}`} className="relative bg-white border rounded-lg shadow-md transform transition duration-500 hover:scale-105">
             <div className="relative bg-white border rounded-lg shadow-md transform transition duration-500 hover:scale-105">
                 <div className="p-2 flex justify-center">
-                    <img className="rounded-md"
-                    src="https://tailwindflex.com/public/images/thumbnails/coming-soon-page/thumb_u.min.webp"
-                    loading="lazy"/>
+                    <div className='rounded-md w-full h-48' style={{backgroundColor: board.color, ...(board.color === '#FFFFFF' ? {outline: `1px solid #000000`} : {})}}></div>
                 </div>
 
                 <div className="px-4 pb-3">

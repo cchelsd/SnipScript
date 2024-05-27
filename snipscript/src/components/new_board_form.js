@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
+import { SketchPicker } from "react-color"; 
 
 export default function BoardForm({closeModal, updateBoards}) {
 
-    const [name, setName] = useState('');
-    const [background, setBackground] = useState('');
+    const [name, setName] = useState(null);
+    const [color, setColor] = useState(null);
+    const [displayColorPicker, setDisplayColorPicker] = useState(false);
+    const [isEmpty, setIsEmpty] = useState(false);
     const user = localStorage.getItem("Current user id");
 
     const handleSubmit = (e) => {
@@ -15,14 +18,19 @@ export default function BoardForm({closeModal, updateBoards}) {
             },
             body: JSON.stringify({
               userId: user,
-              boardName: name
+              boardName: name,
+              color: color
             }),
           })
           .then(response => {
             if (!response.ok) {
+              setIsEmpty(true)
               throw new Error('Network response was not ok');
+            } else {
+              closeModal();
+              return response.json();
             }
-            return response.json();
+            
           })
           .then(data => {    
             console.log(data.message);
@@ -30,7 +38,7 @@ export default function BoardForm({closeModal, updateBoards}) {
             fetch(`http://localhost:3001/boards/${user}`)
             .then(response => response.json())
             .then(data => {
-            updateBoards()
+              updateBoards()
             })
             .catch(error => {
             console.error('Error fetching boards:', error);
@@ -39,8 +47,11 @@ export default function BoardForm({closeModal, updateBoards}) {
           .catch(error => {
             console.error('Error:', error);
           });
-        closeModal();
     };
+
+    const handleColorChange = (color) => {
+      setColor(color.hex);
+    }
 
     return (
         <div id="add-board-modal" className="flex justify-center items-center bg-black fixed z-10 bg-opacity-60 inset-0 left-0 -top-2">
@@ -54,9 +65,27 @@ export default function BoardForm({closeModal, updateBoards}) {
                 onChange={(e) => setName(e.target.value)}
                 className="mt-2 block w-full rounded-full border-0 px-4 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 placeholder="Enter name"
+                required
                 />
+                {isEmpty && <p className='ml-2 mt-1 text-sm text-red-500'>Name is required</p>}
+                <label htmlFor="color" className="ml-px block pl-4 text-sm font-medium leading-6 text-gray-900 mt-4">Color</label>
+                <div className="mt-2">
+                  <div className="flex items-center">
+                    <div
+                      className="w-10 h-10 rounded-md outline outline-1 cursor-pointer"
+                      style={{ backgroundColor: color }}
+                      onClick={() => setDisplayColorPicker(!displayColorPicker)}
+                    />
+                    <p className="ml-4">{color ? color : "#FFFFFF"}</p>
+                  </div>
+                  {displayColorPicker && (
+                    <div className="absolute z-20 mt-2">
+                      <SketchPicker color={'#FFFFFF'} onChange={handleColorChange} />
+                    </div>
+                  )}
+                </div>
                 <div className="flex justify-between">
-                    <button onClick={closeModal} className='rounded-full bg-gray-900 text-white px-6 py-2 mt-4'>Close</button>
+                    <button onClick={() => {closeModal(); setIsEmpty(false)}} className='rounded-full bg-gray-900 text-white px-6 py-2 mt-4'>Close</button>
                     <button onClick={handleSubmit} className='rounded-full bg-gray-900 text-white px-6 py-2 mt-4'>Create board</button>
                 </div>
             </div>

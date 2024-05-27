@@ -1,6 +1,7 @@
 import Editor from "@monaco-editor/react"
 import { useEffect, useState } from "react"
-import * as monaco from 'monaco-editor';
+// import * as monaco from 'monaco-editor';
+// import * as editor from 'monaco-editor/esm/vs/editor/editor.main'
 
 export default function CodeEditor({initialValue, onChange, language}) {
     const defaultLanguage = language !== "" ? language : 'javascript';

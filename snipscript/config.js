@@ -80,11 +80,10 @@ app.get("/boards/:userId", async (request, response) => {
 app.post("/boards/add", async (request, response) => {
   try {
     const connection = await pool.getConnection();
-    const userId = request.body.userId;
-    const boardName = request.body.boardName;
+    const { userId, boardName, color} = request.body;
     const [result] = await connection.query(
-      "INSERT INTO Boards (user_id, board_name) VALUES (?, ?)",
-      [userId, boardName]
+      "INSERT INTO Boards (user_id, board_name, color) VALUES (?, ?, ?)",
+      [userId, boardName, color]
     );
     connection.release();
     if (result.affectedRows === 1) {
@@ -533,7 +532,6 @@ app.get("/stats/:type/:userId/:snippetId", async (request, response) => {
     const [countResult] = await connection.query(`SELECT COUNT(*) AS ${countColumn} FROM ${table} WHERE snippet_id = ?`, [snippetId]);
     const [userResult] = await connection.query(`SELECT COUNT(*) > 0 AS ${isColumn} FROM ${table} WHERE user_id = ? AND snippet_id = ?`, [userId, snippetId]);
     connection.release();
-    console.log({[countColumn]: countResult[0][countColumn], [isColumn]: userResult[0][isColumn]});
     response.status(200).json({[countColumn]: countResult[0][countColumn], [isColumn]: userResult[0][isColumn]});
   } catch (error) {
     console.error("Error executing SQL query:", error);
@@ -644,11 +642,11 @@ app.post("/login", async (request, response) => {
             response.status(200).json({ success: true, message: "Login successful", user });
         } else {
             // Passwords don't match, authentication failed
-            response.status(401).json({ success: false, message: "Login failed. Invalid password." });
+            response.status(401).json({ success: false, message: "Invalid password." });
         }
       } else {
         // User not found, authentication failed
-        response.status(401).json({ success: false, message: "Login failed. Invalid username." });
+        response.status(401).json({ success: false, message: "Invalid username." });
       }
   } catch (error) {
     console.error("Error executing SQL query:", error);
@@ -673,7 +671,7 @@ app.post("/register", async (request, response) => {
       response.status(400).json({
         success: false,
         message:
-          "User already exists. Please choose a different username or sign in.",
+          "User already exists. Please choose a different username.",
       });
       connection.release();
       return;
@@ -700,13 +698,13 @@ app.post("/register", async (request, response) => {
       });
     } else {
       // User registration failed
-      response.status(500).json({
-        success: false,
-        message: "Failed to register user. Please try again later.",
-      });
+      response.status(500).json({success: false, message: "Failed to register user. Please try again later."});
     }
   } catch (error) {
     console.error("Error executing SQL query:", error);
+    if (error.code === 'ER_CHECK_CONSTRAINT_VIOLATED') {
+      response.status(400).json({success: false, message: "Username must contain only letters, numbers, or underscores."})
+    }
     response
       .status(500)
       .json({ success: false, message: "Internal server error" });
