@@ -134,7 +134,7 @@ export default function ViewSnippet ({ card, snippetTags, closeModal, updateCard
     return (
     <>
     {!isEditing ? (
-      <div id="view-snippet-modal" className="flex justify-center items-center bg-black fixed z-40 bg-opacity-60 inset-0 left-0 -top-2">
+      <div id="view-snippet-modal" className="flex justify-center items-center bg-black fixed z-40 bg-opacity-60 inset-0 left-0 -top-2" onClick={closeModal}>
         <div className="bg-white h-3/4 w-2/4 rounded-2xl p-5 max-h-[calc(100vh - 100px] overflow-y-auto">
             <div className="flex justify-between">
                 {updateCard ? (
