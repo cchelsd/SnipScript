@@ -6,7 +6,7 @@ export default function BoardForm({closeModal, updateBoards}) {
     const [name, setName] = useState(null);
     const [color, setColor] = useState(null);
     const [displayColorPicker, setDisplayColorPicker] = useState(false);
-    const [isEmpty, setIsEmpty] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
     const pickerRef = useRef(null);
     const user = localStorage.getItem("Current user id");
 
@@ -23,43 +23,40 @@ export default function BoardForm({closeModal, updateBoards}) {
     }, [pickerRef])
 
     const handleSubmit = (e) => {
-        e.preventDefault();
-        fetch('http://localhost:3001/boards/add', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              userId: user,
-              boardName: name,
-              color: color
-            }),
-          })
-          .then(response => {
-            if (!response.ok) {
-              setIsEmpty(true)
-              throw new Error('Network response was not ok');
-            } else {
-              closeModal();
-              return response.json();
-            }
-            
-          })
-          .then(data => {    
-            console.log(data.message);
-             // Fetch updated boards
+      e.preventDefault();
+      fetch('http://localhost:3001/boards/add', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: user,
+            boardName: name,
+            color: color
+          }),
+        })
+        .then(response => {
+            return response.json();            
+        })
+        .then(data => {    
+          // Fetch updated boards
+          if (data.success) {
+            closeModal();
             fetch(`http://localhost:3001/boards/${user}`)
             .then(response => response.json())
-            .then(data => {
+            .then(() => {
               updateBoards()
             })
             .catch(error => {
-            console.error('Error fetching boards:', error);
+              console.error('Error fetching boards:', error);
             });
-          })
-          .catch(error => {
-            console.error('Error:', error);
-          });
+          } else {
+            setErrorMessage(data.message);
+          } 
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
     };
 
     const handleColorChange = (color) => {
@@ -80,7 +77,7 @@ export default function BoardForm({closeModal, updateBoards}) {
                 placeholder="Enter name"
                 required
                 />
-                {isEmpty && <p className='ml-2 mt-1 text-sm text-red-500'>Name is required</p>}
+                <p className='ml-2 mt-1 text-sm text-red-500'>{errorMessage}</p>
                 <label htmlFor="color" className="ml-px block pl-4 text-sm font-medium leading-6 text-gray-900 mt-4">Color</label>
                 <div className="mt-2">
                   <div className="flex items-center">
@@ -98,7 +95,7 @@ export default function BoardForm({closeModal, updateBoards}) {
                   )}
                 </div>
                 <div className="flex justify-between">
-                    <button onClick={() => {closeModal(); setIsEmpty(false)}} className='rounded-full bg-gray-900 text-white px-6 py-2 mt-4'>Close</button>
+                    <button onClick={() => {closeModal()}} className='rounded-full bg-gray-900 text-white px-6 py-2 mt-4'>Close</button>
                     <button onClick={handleSubmit} className='rounded-full bg-gray-900 text-white px-6 py-2 mt-4'>Create board</button>
                 </div>
             </div>

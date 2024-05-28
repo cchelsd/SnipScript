@@ -97,9 +97,15 @@ app.post("/boards/add", async (request, response) => {
     }
   } catch (error) {
     console.error("Error executing SQL query:", error);
-    response
-      .status(400)
-      .json({ Error: "Error in the SQL statement. Please check." });
+    if (error.code === 'ER_DUP_ENTRY') {
+      response.status(400).json({success: false, message: "Board with this name already exists."})
+    } else if (error.code === 'ER_BAD_NULL_ERROR') {
+      response.status(400).json({success: false, message: "Name is required"})
+    } else if (error.code ==='ER_CHECK_CONSTRAINT_VIOLATED') {
+      response.status(400).json({success: false, message: "Please remove any leading or trailing white space."})
+    } else {
+      response.status(400).json({ Error: "Error in the SQL statement. Please check." });
+    }
   }
 });
 
@@ -172,9 +178,13 @@ app.post("/lists", async (request, response) => {
     }
   } catch (error) {
     console.error("Error executing SQL query:", error);
-    response
-      .status(400)
-      .json({ Error: "Error in the SQL statement. Please check." });
+    if (error.code === "ER_DUP_ENTRY") {
+      response.status(400).json({success: false, message: "A list with this name already exists in the board."})
+    } else if (error.code === 'ER_BAD_NULL_ERROR') {
+      response.status(400).json({success: false, message: "Name is required"})
+    } else {
+      response.status(400).json({ Error: "Error in the SQL statement. Please check." });
+    }
   }
 });
 

@@ -9,8 +9,8 @@ const Board = () => {
   const [lists, setLists] = useState([]);
   const [listName, setListName] = useState(null);
   const [openListModal, setOpenListModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const { boardName, boardId } = useParams();
-  const [isEmpty, setIsEmpty] = useState(false);
   const userId = localStorage.getItem("Current user id");
   
 
@@ -124,12 +124,14 @@ const Board = () => {
       body: JSON.stringify({ userId: userId, boardId: boardId, listName: listName}),
     })
     .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      } else {
-        console.log('Successfully added list');
+      return response.json();
+    })
+    .then(data => {
+      if (data.success) {
         fetchLists();
         setOpenListModal(false);
+      } else {
+        setErrorMessage(data.message);
       }
     })
     .catch(error => {
@@ -172,10 +174,10 @@ const Board = () => {
                 placeholder="Enter name"
                 required
                 />
-                {isEmpty && <p className='ml-2 mt-1 text-sm text-red-500'>Name is required</p>}
+                <p className='ml-2 mt-1 text-sm text-red-500'>{errorMessage}</p>
                 <div className="flex justify-between">
-                    <button onClick={() => {setOpenListModal(false); setIsEmpty(false)}} className='rounded-full bg-gray-900 text-white px-6 py-2 mt-4'>Close</button>
-                    <button onClick={() => {handleAddList(); setIsEmpty(listName === null || listName.trim() === '')}} className='rounded-full bg-gray-900 text-white px-6 py-2 mt-4'>Create List</button>
+                    <button onClick={() => {setOpenListModal(false); setErrorMessage('')}} className='rounded-full bg-gray-900 text-white px-6 py-2 mt-4'>Close</button>
+                    <button onClick={() => {handleAddList(); setErrorMessage('')}} className='rounded-full bg-gray-900 text-white px-6 py-2 mt-4'>Create List</button>
                 </div>
             </div>
         </div>
