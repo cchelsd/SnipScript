@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ViewSnippet from "./snippet_modal";
 
-export default function SnippetCard({ snippet, isUsers, isRecent }) {
+export default function SnippetCard({ snippet, isUsers, isRecent, updateBookmark }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [snippetTags, setSnippetTags] = useState(null);
 
@@ -21,9 +21,7 @@ export default function SnippetCard({ snippet, isUsers, isRecent }) {
     fetchTags();
   }, [snippet]);
 
-  const updateCard = () => {
-    
-  }
+
 
   const formatDate = (date) => {
     const newDate = new Date(date);
@@ -50,7 +48,7 @@ export default function SnippetCard({ snippet, isUsers, isRecent }) {
           </div>
       </div>
       {isModalOpen && (
-        <ViewSnippet card={snippet} snippetTags={snippetTags} updateCard={isUsers} closeModal={() => setIsModalOpen(false)}></ViewSnippet>
+        <ViewSnippet card={snippet} snippetTags={snippetTags} updateCard={isUsers} updateBookmark={updateBookmark} closeModal={() => setIsModalOpen(false)}></ViewSnippet>
       )}
     </>
   );

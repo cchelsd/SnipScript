@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import SnippetForm from "./snippet_card_form";
 import { useNavigate } from "react-router-dom";
 
-export default function ViewSnippet ({ card, snippetTags, closeModal, updateCard }) {
+export default function ViewSnippet ({ card, snippetTags, closeModal, updateCard, updateBookmark }) {
 
     const [isEditing, setIsEditing] = useState(false);
     const [isBookmarked, setBookmarked] = useState(false);
@@ -70,6 +70,9 @@ export default function ViewSnippet ({ card, snippetTags, closeModal, updateCard
               throw new Error('Network response was not ok');
             } else {
               fetchStats(type)
+              if (type === 'bookmark') {
+                updateBookmark();
+              }
               console.log('Successfully updated stat');
             }
             })
@@ -135,7 +138,7 @@ export default function ViewSnippet ({ card, snippetTags, closeModal, updateCard
     <>
     {!isEditing ? (
       <div id="view-snippet-modal" className="flex justify-center items-center bg-black fixed z-40 bg-opacity-60 inset-0 left-0 -top-2" onClick={closeModal}>
-        <div className="bg-white h-3/4 w-2/4 rounded-2xl p-5 max-h-[calc(100vh - 100px] overflow-y-auto">
+        <div className="bg-white h-3/4 w-2/4 rounded-2xl p-5 max-h-[calc(100vh - 100px] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between">
                 {updateCard ? (
                   <span className="bg-violet-200 text-violet-800 px-2 py-1 rounded-full text-xs mr-2 mb-3" >{card.privacy === 0 ? 'Public' : 'Private'}</span>

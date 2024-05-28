@@ -43,7 +43,7 @@ export default function Bookmarks() {
         {bookmarks.length > 0 ? (
           <div className="grid w-5/6 grid-cols-1 gap-5 p-4 mx-12 mt-12 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 md:p-2 xl:p-5">
           {bookmarks.map((snippet) => (
-            <SnippetCard key={snippet.id} snippet={snippet} isUsers={true} />
+            <SnippetCard key={snippet.id} snippet={snippet} isUsers={false} updateBookmark={() => fetchBookmarks()} />
           ))}
           </div>
         ) : (
