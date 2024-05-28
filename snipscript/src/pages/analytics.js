@@ -84,7 +84,7 @@ export default function Analytics() {
       </div>
       <h1 className="mt-20 text-3xl font-medium text-white">Top 5 Snippets</h1>
       <p className="mt-3 text-lg text-white">
-        Based on collective stats of upvotes, views, and copies
+        Based on collective stats of upvotes, views, copies, and bookmarks
       </p>
       <div className="flex items-center justify-center w-full overflow-auto bg-transparent">
         {topSnippets.length > 0 ? (

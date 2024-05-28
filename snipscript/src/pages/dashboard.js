@@ -34,7 +34,7 @@ export default function Dashboard() {
 
     const fetchRecentSnippets = () => {
         if (user) {
-          fetch(`http://localhost:3001/analytics/recent?user_id=${user}`, {
+          fetch(`http://localhost:3001/analytics/recent/${user}`, {
             method: "GET",
             headers: {
               "Content-Type": "application/json",

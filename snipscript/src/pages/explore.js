@@ -64,7 +64,8 @@ export default function Explore() {
   };
 
   const handleSearch = (query) => {
-    fetch(`http://localhost:3001/explore/search?query=${query}`, {
+    console.log(query);
+    fetch(`http://localhost:3001/explore/search/${query}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
