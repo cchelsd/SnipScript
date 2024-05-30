@@ -17,7 +17,7 @@ const Board = () => {
   const navigate = useNavigate();
 
   const fetchLists = () => {
-    fetch(`http://localhost:3001/lists/${boardId}`)
+    fetch(`https://able-nature-424917-u2.wl.r.appspot.com/api/lists/${boardId}`)
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -76,7 +76,7 @@ const Board = () => {
 
     setLists(updatedLists);
     // Make a request to update the database
-    fetch(`http://localhost:3001/snippet/drag/${destination.droppableId}`, {
+    fetch(`https://able-nature-424917-u2.wl.r.appspot.com/api/snippet/drag/${destination.droppableId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -96,7 +96,7 @@ const Board = () => {
   };
 
   const handleDelete = () => {
-    fetch(`http://localhost:3001/boards/${boardId}`, {
+    fetch(`https://able-nature-424917-u2.wl.r.appspot.com/api/boards/${boardId}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -116,7 +116,7 @@ const Board = () => {
   }
 
   const handleAddList = () => {
-    fetch(`http://localhost:3001/lists`, {
+    fetch(`https://able-nature-424917-u2.wl.r.appspot.com/api/lists`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

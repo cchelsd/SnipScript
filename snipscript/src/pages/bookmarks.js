@@ -9,7 +9,7 @@ export default function Bookmarks() {
 
   const fetchBookmarks = () => {
     if (user) {
-        fetch(`http://localhost:3001/bookmarks/${user}`, {
+        fetch(`https://able-nature-424917-u2.wl.r.appspot.com/api/bookmarks/${user}`, {
             method: "GET",
             headers: {
             "Content-Type": "application/json",

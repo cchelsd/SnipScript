@@ -12,7 +12,7 @@ export default function Dashboard() {
 
     const fetchBoards = () => {
         if (user) {
-            fetch(`http://localhost:3001/boards/${user}`, {
+            fetch(`https://able-nature-424917-u2.wl.r.appspot.com/api/boards/${user}`, {
                 method: 'GET',
                 headers: {
                   'Content-Type': 'application/json',
@@ -34,7 +34,7 @@ export default function Dashboard() {
 
     const fetchRecentSnippets = () => {
         if (user) {
-          fetch(`http://localhost:3001/analytics/recent/${user}`, {
+          fetch(`https://able-nature-424917-u2.wl.r.appspot.com/api/analytics/recent/${user}`, {
             method: "GET",
             headers: {
               "Content-Type": "application/json",

@@ -3,11 +3,21 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const mysql = require("mysql2/promise");
-const port = 3001;
+const port = process.env.PORT;
 const bcrypt = require("bcrypt");
-
+const path = require("path");
 const app = express();
-app.use(cors());
+
+// Set up CORS
+app.use(cors({
+  origin: '*', // Allows all origins
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
+// Handle preflight requests
+app.options('*', cors());
+
 app.use(express.json());
 
 const mysqlConfig = {
@@ -19,6 +29,8 @@ const mysqlConfig = {
 };
 
 const pool = mysql.createPool(mysqlConfig);
+
+app.use(express.static(path.join(__dirname, 'build')));
 
 app.listen(port, () => {
   console.log(`Express server is running and listening on port ${port}`);
@@ -63,7 +75,7 @@ const comparePassword = async (password, hash) => {
 // ------------- Boards and Lists ------------- //
 
 // Query 6 of queries.sql: Retrieves all the boards of a user and the number of snippets in each board.
-app.get("/boards/:userId", async (request, response) => {
+app.get("/api/boards/:userId", async (request, response) => {
   try {
     const connection = await pool.getConnection();
     const userId = request.params.userId;
@@ -87,7 +99,7 @@ app.get("/boards/:userId", async (request, response) => {
 });
 
 // Creates a new board for the user.
-app.post("/boards/add", async (request, response) => {
+app.post("/api/boards/add", async (request, response) => {
   try {
     const connection = await pool.getConnection();
     const { userId, boardName, color} = request.body;
@@ -116,7 +128,7 @@ app.post("/boards/add", async (request, response) => {
 });
 
 // Deletes a board.
-app.delete("/boards/:boardId", async (request, response) => {
+app.delete("/api/boards/:boardId", async (request, response) => {
   try {
     const connection = await pool.getConnection();
     const boardId = request.params.boardId;
@@ -136,7 +148,7 @@ app.delete("/boards/:boardId", async (request, response) => {
 });
 
 // Query 10 of queries.sql: Retrieve data about the lists and code snippets within a single board belonging to a user.
-app.get("/lists/:boardId", async (request, response) => {
+app.get("/api/lists/:boardId", async (request, response) => {
   try {
     const connection = await pool.getConnection();
     const boardId = request.params.boardId;
@@ -158,7 +170,7 @@ app.get("/lists/:boardId", async (request, response) => {
 });
 
 // Creates a new list
-app.post("/lists", async (request, response) => {
+app.post("/api/lists", async (request, response) => {
   try {
     const connection = await pool.getConnection();
     const { userId, boardId, listName } = request.body;
@@ -187,7 +199,7 @@ app.post("/lists", async (request, response) => {
 // ------------- CodeSnippets ------------- //
 
 // Creates a code snippet
-app.post("/snippet", async (request, response) => {
+app.post("/api/snippet", async (request, response) => {
   try {
     const connection = await pool.getConnection();
     const { userId, listId, title, description, code, language, tags } =
@@ -220,7 +232,7 @@ app.post("/snippet", async (request, response) => {
 });
 
 // Retrieves all data about a given code snippet
-app.get("/snippet/:snippetId", async (request, response) => {
+app.get("/api/snippet/:snippetId", async (request, response) => {
   try {
     const connection = await pool.getConnection();
     const snippetId = request.params.snippetId;
@@ -234,7 +246,7 @@ app.get("/snippet/:snippetId", async (request, response) => {
 });
 
 // Retrieves all tags associated with given code snippet
-app.get("/snippet/tags/:snippetId", async (request, response) => {
+app.get("/api/snippet/tags/:snippetId", async (request, response) => {
   try {
     const connection = await pool.getConnection();
     const snippetId = request.params.snippetId;
@@ -249,7 +261,7 @@ app.get("/snippet/tags/:snippetId", async (request, response) => {
 });
 
 // Updates data of a given code snippet
-app.put("/snippet/:snippetId", async (request, response) => {
+app.put("/api/snippet/:snippetId", async (request, response) => {
   try {
     const connection = await pool.getConnection();
     const id = request.params.snippetId;
@@ -276,7 +288,7 @@ app.put("/snippet/:snippetId", async (request, response) => {
 });
 
 // Updates the list a snippet is associated with (i.e. moving a code snippet to a different list).
-app.put("/snippet/drag/:listId", async (request, response) => {
+app.put("/api/snippet/drag/:listId", async (request, response) => {
   try {
     const connection = await pool.getConnection();
     const listId = request.params.listId;
@@ -291,7 +303,7 @@ app.put("/snippet/drag/:listId", async (request, response) => {
 });
 
 // Updates snippets stats (copies and/or views)
-app.put("/snippet/stats/:snippetId", async (request, response) => {
+app.put("/api/snippet/stats/:snippetId", async (request, response) => {
   try {
     const connection = await pool.getConnection();
     const snippetId = parseInt(request.params.snippetId);
@@ -325,7 +337,7 @@ app.put("/snippet/stats/:snippetId", async (request, response) => {
 });
 
 // Query 9 of queries.sql: Retrieves all public code snippets along with their tags and the username of the snippet owner.
-app.get("/explore", async (request, response) => {
+app.get("/api/explore", async (request, response) => {
   try {
     const connection = await pool.getConnection();
     const [result] = await connection.query(
@@ -347,7 +359,7 @@ app.get("/explore", async (request, response) => {
 // ------------- Explore ------------- //
 
 // Retreive trending snippets. Based on snippets posted within the current month with the highest number of views and upvotes.
-app.get("/explore/trending", async (request, response) => {
+app.get("/api/explore/trending", async (request, response) => {
   try {
     const connection = await pool.getConnection();
     const [result] = await connection.query(
@@ -369,7 +381,7 @@ app.get("/explore/trending", async (request, response) => {
 });
 
 // Query 2 of queries.sql: Retrieve most popular tags among all public code snippets.
-app.get("/explore/popular-tags", async (req, res) => {
+app.get("/api/explore/popular-tags", async (req, res) => {
   try {
     const connection = await pool.getConnection();
     const [result] = await connection.query(
@@ -394,7 +406,7 @@ app.get("/explore/popular-tags", async (req, res) => {
 });
 
 // Query 4 of queries.sql: Search for code snippets based on title, description, and tags for the explore page.
-app.get("/explore/search/:query", async (req, res) => {
+app.get("/api/explore/search/:query", async (req, res) => {
   try {
     const connection = await pool.getConnection();
     const query = req.params.query;
@@ -426,7 +438,7 @@ app.get("/explore/search/:query", async (req, res) => {
 // ------------- Analytics ------------- //
 
 // Retrieves a user's total number of views, copies, and upvotes among all their snippets.
-app.get("/analytics/user/:userId", async (request, response) => {
+app.get("/api/analytics/user/:userId", async (request, response) => {
   try {
     const connection = await pool.getConnection();
     const userId = request.params.userId;
@@ -446,7 +458,7 @@ app.get("/analytics/user/:userId", async (request, response) => {
 });
 
 // Query 7 of queries.sql: Retrieve the 5 most recent code snippets added by the user across all of their boards.
-app.get("/analytics/recent/:userId", async (req, res) => {
+app.get("/api/analytics/recent/:userId", async (req, res) => {
   try {
     const connection = await pool.getConnection();
     const userId = req.params.userId;
@@ -468,7 +480,7 @@ app.get("/analytics/recent/:userId", async (req, res) => {
 });
 
 // Query 8 of queries.sql: Retrieve a user's top 5 most popular, public snippets based on the collective stats of upvotes, views, copies, and bookmarks.
-app.get("/analytics/top/:userId", async (req, res) => {
+app.get("/api/analytics/top/:userId", async (req, res) => {
   try {
     const connection = await pool.getConnection();
     const userId = req.params.userId;
@@ -497,7 +509,7 @@ app.get("/analytics/top/:userId", async (req, res) => {
 // ------------- CodeSnippet Stats (bookmarks, views, upvotes, copies) ------------- //
 
 // Retrieves a code snippets num of upvotes or bookmarks, and if the current user has the snippet bookmarked and/or upvoted
-app.get("/stats/:type/:userId/:snippetId", async (request, response) => {
+app.get("/api/stats/:type/:userId/:snippetId", async (request, response) => {
   try {
     const connection = await pool.getConnection();
     const { userId, snippetId } = request.params;
@@ -515,7 +527,7 @@ app.get("/stats/:type/:userId/:snippetId", async (request, response) => {
 })
 
 // Add a snippet to a user's bookmarks or upvotes
-app.post("/stats/:type", async (request, response) => {
+app.post("/api/stats/:type", async (request, response) => {
   try {
     const connection = await pool.getConnection();
     const { userId, snippetId } = request.body;
@@ -534,7 +546,7 @@ app.post("/stats/:type", async (request, response) => {
 });
 
 // Delete a snippet from a user's bookmarks or upvotes
-app.delete("/stats/:type", async (request, response) => {
+app.delete("/api/stats/:type", async (request, response) => {
   try {
     const connection = await pool.getConnection();
     const { userId, snippetId } = request.body;
@@ -553,7 +565,7 @@ app.delete("/stats/:type", async (request, response) => {
 });
 
 // Retrieve a user's bookmarked snippets
-app.get("/bookmarks/:userId", async (request, response) => {
+app.get("/api/bookmarks/:userId", async (request, response) => {
   try {
     const connection = await pool.getConnection();
     const userId = request.params.userId;
@@ -574,7 +586,7 @@ app.get("/bookmarks/:userId", async (request, response) => {
 // ------------- Authentication ------------- //
 
 // Login authentication
-app.post("/login", async (request, response) => {
+app.post("/api/login", async (request, response) => {
   const { username, password } = request.body;
   try {
     const connection = await pool.getConnection();
@@ -611,7 +623,7 @@ app.post("/login", async (request, response) => {
 });
 
 // Creates a new user
-app.post("/register", async (request, response) => {
+app.post("/api/register", async (request, response) => {
   const { username, password } = request.body;
   try {
     const connection = await pool.getConnection();
@@ -661,4 +673,8 @@ app.post("/register", async (request, response) => {
     }
     response.status(500).json({ success: false, message: "Internal server error" });
   }
+});
+
+app.get('*', (ref, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });

@@ -24,7 +24,7 @@ export default function BoardForm({closeModal, updateBoards}) {
 
     const handleSubmit = (e) => {
       e.preventDefault();
-      fetch('http://localhost:3001/boards/add', {
+      fetch('https://able-nature-424917-u2.wl.r.appspot.com/api/boards/add', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -42,7 +42,7 @@ export default function BoardForm({closeModal, updateBoards}) {
           // Fetch updated boards
           if (data.success) {
             closeModal();
-            fetch(`http://localhost:3001/boards/${user}`)
+            fetch(`http://localhost:3001/api/boards/${user}`)
             .then(response => response.json())
             .then(() => {
               updateBoards()

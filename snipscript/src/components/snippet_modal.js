@@ -36,7 +36,7 @@ export default function ViewSnippet ({ card, snippetTags, closeModal, updateCard
 
     const fetchStats = async (type) => {
       try {
-        const response = await fetch(`http://localhost:3001/stats/${type}/${userId}/${card.id}`);
+        const response = await fetch(`https://able-nature-424917-u2.wl.r.appspot.com/api/stats/${type}/${userId}/${card.id}`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -58,7 +58,7 @@ export default function ViewSnippet ({ card, snippetTags, closeModal, updateCard
       if (!userId) {
         setOpenDialog(true)
       } else {
-        fetch(`http://localhost:3001/stats/${type}`, {
+        fetch(`https://able-nature-424917-u2.wl.r.appspot.com/api/stats/${type}`, {
             method: method,
             headers: {
               'Content-Type': 'application/json',
@@ -110,7 +110,7 @@ export default function ViewSnippet ({ card, snippetTags, closeModal, updateCard
         
         if (Object.keys(body).length > 0) {
           try {
-            const response = await fetch(`http://localhost:3001/snippet/stats/${card.id}`, {
+            const response = await fetch(`https://able-nature-424917-u2.wl.r.appspot.com/api/snippet/stats/${card.id}`, {
               method: 'PUT',
               headers: {
                 'Content-Type': 'application/json',

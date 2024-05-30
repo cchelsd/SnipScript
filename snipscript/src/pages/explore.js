@@ -9,7 +9,7 @@ export default function Explore() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const fetchSnippets = () => {
-    fetch(`http://localhost:3001/explore`, {
+    fetch(`https://able-nature-424917-u2.wl.r.appspot.com/api/explore`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -31,7 +31,7 @@ export default function Explore() {
   };
 
   const fetchTags = () => {
-    fetch(`http://localhost:3001/explore/popular-tags`, {
+    fetch(`https://able-nature-424917-u2.wl.r.appspot.com/api/explore/popular-tags`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -65,7 +65,7 @@ export default function Explore() {
 
   const handleSearch = (query) => {
     console.log(query);
-    fetch(`http://localhost:3001/explore/search/${query}`, {
+    fetch(`https://able-nature-424917-u2.wl.r.appspot.com/api/explore/search/${query}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -87,7 +87,7 @@ export default function Explore() {
 
   const fetchTrendingSnippets = () => {
     setSelectedTag("trending")
-    fetch(`http://localhost:3001/explore/trending`, {
+    fetch(`https://able-nature-424917-u2.wl.r.appspot.com/api/explore/trending`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

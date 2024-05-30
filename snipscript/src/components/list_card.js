@@ -13,7 +13,7 @@ const ListCard = ({ card, index, updateCard }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/snippet/${card.id}`);
+        const response = await fetch(`https://able-nature-424917-u2.wl.r.appspot.com/api/snippet/${card.id}`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -30,7 +30,7 @@ const ListCard = ({ card, index, updateCard }) => {
   useEffect(() => {
     const fetchTags = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/snippet/tags/${card.id}`);
+        const response = await fetch(`https://able-nature-424917-u2.wl.r.appspot.com/api/snippet/tags/${card.id}`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
