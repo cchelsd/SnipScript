@@ -10,7 +10,7 @@ export default function Analytics() {
 
   const fetchTopSnippets = () => {
     if (user) {
-      fetch(`https://able-nature-424917-u2.wl.r.appspot.com/api/analytics/top/${user}`, {
+      fetch(`https://snipscript-3.wl.r.appspot.com/api/analytics/top/${user}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -33,7 +33,7 @@ export default function Analytics() {
 
   const fetchStats = () => {
     if (user) {
-      fetch(`https://able-nature-424917-u2.wl.r.appspot.com/api/analytics/user/${user}`, {
+      fetch(`https://snipscript-3.wl.r.appspot.com/api/analytics/user/${user}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

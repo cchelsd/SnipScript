@@ -12,7 +12,7 @@ export default function Auth () {
 
     const handleSubmit = (event) => {
       event.preventDefault();
-      const endpoint = isLogin ? 'https://able-nature-424917-u2.wl.r.appspot.com/api/login' : 'https://able-nature-424917-u2.wl.r.appspot.com/api/register';
+      const endpoint = isLogin ? 'https://snipscript-3.wl.r.appspot.com/api/login' : 'https://snipscript-3.wl.r.appspot.com/api/register';
     
       fetch(endpoint, {
         method: 'POST',

@@ -22,7 +22,7 @@ export default function SnippetForm ({ card, snippetTags, closeModal, updateCard
   const [publicSetting, setPublicSetting] = useState(cardData.publicSetting);
   const [isMissing, setIsMissing] = useState(false)
 
-  const endpoint = isAdding ? `https://able-nature-424917-u2.wl.r.appspot.com/api/snippet` : `https://able-nature-424917-u2.wl.r.appspot.com/api/snippet/${card.id}`;
+  const endpoint = isAdding ? `https://snipscript-3.wl.r.appspot.com/api/snippet` : `https://snipscript-3.wl.r.appspot.com/api/snippet/${card.id}`;
   const method = isAdding ? 'POST' : 'PUT'
   const userId = parseInt(localStorage.getItem("Current user id"));
 

@@ -8,7 +8,7 @@ export default function SnippetCard({ snippet, isUsers, isRecent, updateBookmark
   useEffect(() => {
     const fetchTags = async () => {
       try {
-        const response = await fetch(`https://able-nature-424917-u2.wl.r.appspot.com/api/snippet/tags/${snippet.id}`);
+        const response = await fetch(`https://snipscript-3.wl.r.appspot.com/api/snippet/tags/${snippet.id}`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
