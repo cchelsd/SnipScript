@@ -53,12 +53,15 @@ export default function Explore() {
 
   const handleTagClick = (tag) => {
     setSelectedTag(tag);
+    const normalizedTag = tag.trim().toLowerCase();
     if (tag === "all") {
       setSnippets(allSnippets); // Show all snippets if no tag is selected
     } else {
       const filteredSnippets = allSnippets.filter((snippet) =>
-        snippet.tags.includes(tag)
-      );
+        {
+          const snippetTags = snippet.tags.split(',').map(t => t.trim().toLowerCase());
+          return snippetTags.includes(normalizedTag); 
+      });
       setSnippets(filteredSnippets);
     }
   };
