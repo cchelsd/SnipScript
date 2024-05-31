@@ -59,7 +59,7 @@ const Board = () => {
     const { destination, source, draggableId } = result;
 
     // If there is no destination, or if the draggable is dropped back to its original position, do nothing
-    if (!destination || (destination.droppableId === source.droppableId && destination.index === source.index)) {
+    if (!destination || (parseInt(destination.droppableId) === parseInt(source.droppableId) && destination.index === source.index)) {
       return;
     }
 
@@ -68,20 +68,20 @@ const Board = () => {
     const destListIndex = destination.index;
 
     const updatedLists = [...lists];
-    const sourceList = updatedLists.find((list) => list.id === source.droppableId);
-    const destList = updatedLists.find((list) => list.id === destination.droppableId);
+    const sourceList = updatedLists.find((list) => list.id === parseInt(source.droppableId));
+    const destList = updatedLists.find((list) => list.id === parseInt(destination.droppableId));
 
     const [movedCard] = sourceList.cards.splice(sourceListIndex, 1);
     destList.cards.splice(destListIndex, 0, movedCard);
 
     setLists(updatedLists);
     // Make a request to update the database
-    fetch(`https://able-nature-424917-u2.wl.r.appspot.com/api/snippet/drag/${destination.droppableId}`, {
+    fetch(`https://able-nature-424917-u2.wl.r.appspot.com/api/snippet/drag/${parseInt(destination.droppableId)}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ snippetId: draggableId }),
+      body: JSON.stringify({ snippetId: parseInt(draggableId) }),
     })
     .then(response => {
       if (!response.ok) {
