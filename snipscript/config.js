@@ -105,15 +105,13 @@ app.post("/api/boards/add", async (request, response) => {
     const { userId, boardName, color} = request.body;
     let query = "INSERT INTO board (user_id, board_name";
     let values = [userId, boardName];
-
-    if (color !== null) {
-      query += ", color) VALUES (?, ?, ?)";
+    if (color != null) {
+      query += ", color) VALUES (?, ?, ?)"
       values.push(color);
     } else {
-      query += ") VALUES (?, ?)";
+      query += ") VALUES (?, ?)"
     }
-
-    const [result] = await connection.query(query, values);
+    const [result] = await connection.query(query, values)
     connection.release();
     if (result.affectedRows === 1) {
       response.status(201).json({ success: true, message: "Successfully added board" });

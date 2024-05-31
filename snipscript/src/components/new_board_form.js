@@ -42,7 +42,7 @@ export default function BoardForm({closeModal, updateBoards}) {
           // Fetch updated boards
           if (data.success) {
             closeModal();
-            fetch(`http://localhost:3001/api/boards/${user}`)
+            fetch(`https://able-nature-424917-u2.wl.r.appspot.com/api/boards/${user}`)
             .then(response => response.json())
             .then(() => {
               updateBoards()
