@@ -448,7 +448,7 @@ app.get("/api/analytics/user/:userId", async (request, response) => {
     const connection = await pool.getConnection();
     const userId = request.params.userId;
     const [result] = await connection.query(
-      `SELECT SUM(CS.numOfViews) AS numOfViews, SUM(CS.numOfCopies) AS numOfCopies, COUNT(US.user_id) AS numOfUpvotes
+      `SELECT COALESCE(SUM(CS.numOfViews), 0) AS numOfViews, COALESCE(SUM(CS.numOfCopies), 0) AS numOfCopies, COUNT(US.user_id) AS numOfUpvotes
       FROM code_snippet CS
       LEFT JOIN upvoted_snippet US ON CS.id = US.snippet_id
       WHERE CS.user_id = ?`, [userId]
